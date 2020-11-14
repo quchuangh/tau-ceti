@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.chuang.tau-ceti</groupId>
+    <artifactId>tau-ceti</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0.0.RELEASE</version>
+    <modules>
+        <module>tau-ceti-parent</module>
+        <module>tau-ceti-dependencies-bom</module>
+        <module>tau-ceti-support</module>
+        <module>tau-ceti-tools</module>
+        <module>tau-ceti-http-client</module>
+        <module>tau-ceti-spring</module>
+        <module>tau-ceti-rowquery</module>
+        <module>tau-ceti-payment-sdk</module>
+    </modules>
+    <build>
+        <!--<pluginManagement>-->
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
+                <configuration>
+                    <tagNameFormat>v@{project.version}</tagNameFormat>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.scm</groupId>
+                        <artifactId>maven-scm-provider-jgit</artifactId>
+                        <version>1.11.1</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+        <!--</pluginManagement>-->
+    </build>
+</project>
