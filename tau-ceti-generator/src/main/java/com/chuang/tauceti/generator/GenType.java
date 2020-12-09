@@ -2,6 +2,10 @@ package com.chuang.tauceti.generator;
 
 public interface GenType {
 
+    default boolean equals(GenType type) {
+        return this == type || this.name().equals(type.name());
+    }
+
     GenType ENTITY = new GenType() {
         @Override
         public String name() {

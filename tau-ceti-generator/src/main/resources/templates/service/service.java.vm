@@ -15,6 +15,10 @@ import ${superServiceClassPackage};
 interface ${table.serviceName} : ${superServiceClass}<${entity}>
 #else
 public interface ${table.serviceName} extends ${superServiceClass}<${entity}> {
-
+###if(${table.fieldNames.indexOf("username")} != -1)
+##    default List<${entity}> findByUsername(String username) {
+##        return lambdaQuery().eq(${entity}::getUsername, username).list();
+##    }
+###end
 }
 #end

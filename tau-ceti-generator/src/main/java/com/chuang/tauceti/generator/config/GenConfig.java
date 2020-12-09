@@ -9,8 +9,8 @@ import com.baomidou.mybatisplus.generator.config.po.TableFill;
 import com.baomidou.mybatisplus.generator.config.po.TableInfo;
 import com.baomidou.mybatisplus.generator.config.rules.NamingStrategy;
 import com.baomidou.mybatisplus.generator.engine.AbstractTemplateEngine;
-import com.chuang.tauceti.generator.*;
 import com.chuang.tauceti.generator.INameConvert;
+import com.chuang.tauceti.generator.*;
 import com.chuang.tauceti.generator.initializer.ContextInitializer;
 import com.chuang.tauceti.generator.initializer.ContextInitializers;
 import com.chuang.tauceti.generator.initializer.DefaultContextInitializer;
@@ -75,11 +75,11 @@ public class GenConfig {
 
     private final TemplateConfig template;
 
-    private final String rootPackage;
-
     private final AbstractTemplateEngine templateEngine;
 
     private final TauCetiInjectionConfig injection;
+
+    private final PackageConfig packageCfg;
 
     private final INameConvert nameConvert;
 
@@ -96,7 +96,7 @@ public class GenConfig {
                      GlobalConfig global,
                      DataSourceConfig dataSource,
                      StrategyConfig strategy,
-                     String rootPackage,
+                     PackageConfig packageCfg,
                      List<Generator> generators,
                      AbstractTemplateEngine templateEngine,
                      UnmodifiableDoubleKeyMap<String, String, Class<? extends Enum<?>>> enums,
@@ -106,9 +106,11 @@ public class GenConfig {
         this.nameConvert = nameConvert;
         this.dataSource = dataSource;
         this.strategy = strategy;
-        this.rootPackage = rootPackage;
         this.templateEngine = templateEngine;
         this.enums = enums;
+
+        this.packageCfg = packageCfg;
+
 
         // ========= 模板 =========
         // 取消所有 mybatis plus 生成的内容
@@ -181,6 +183,7 @@ public class GenConfig {
 
         private Consumer<GlobalConfig> global;
         private Consumer<StrategyConfig> strategy;
+        private Consumer<PackageConfig> packageCfg;
 
         private ContextInitializer initializer;
 
@@ -284,6 +287,11 @@ public class GenConfig {
             return this;
         }
 
+        public Builder packageCfg(Consumer<PackageConfig> packageCfg) {
+            this.packageCfg = packageCfg;
+            return this;
+        }
+
         public Builder initializer(ContextInitializer initializer) {
             this.initializer = initializer;
             return this;
@@ -327,7 +335,12 @@ public class GenConfig {
             if(null != this.global) {
                 this.global.accept(global);
             }
-
+            // === 包设置
+            PackageConfig packageConfig = new PackageConfig();
+            packageConfig.setParent(rootPackage);
+            if(null != packageCfg) {
+                this.packageCfg.accept(packageConfig);
+            }
 
             // ========= 数据源配置 =========
             DataSourceConfig dataSource = new DataSourceConfig();
@@ -375,7 +388,7 @@ public class GenConfig {
                     global,
                     dataSource,
                     strategy,
-                    rootPackage,
+                    packageConfig,
                     generators,
                     templateEngine,
                     enums.toUnmodifiable(),

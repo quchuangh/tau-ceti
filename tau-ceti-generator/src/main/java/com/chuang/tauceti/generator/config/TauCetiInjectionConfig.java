@@ -5,8 +5,8 @@ import com.baomidou.mybatisplus.generator.InjectionConfig;
 import com.baomidou.mybatisplus.generator.config.FileOutConfig;
 import com.baomidou.mybatisplus.generator.config.po.TableInfo;
 import com.baomidou.mybatisplus.generator.config.rules.IColumnType;
-import com.chuang.tauceti.generator.initializer.ContextInitializer;
 import com.chuang.tauceti.generator.Generator;
+import com.chuang.tauceti.generator.initializer.ContextInitializer;
 import com.chuang.tauceti.tools.basic.collection.CollectionKit;
 import lombok.extern.slf4j.Slf4j;
 
