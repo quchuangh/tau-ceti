@@ -56,11 +56,11 @@ public class PaymentSDK {
 
     private void loadImpl(String pack) {
         try {
-            Collection<Class<IPaymentPlatform>> list = ClassSearch.findClass(pack, true, new ClassSearch.AndCondition(IPaymentPlatform.class, Platform.class));
-            for (Class<IPaymentPlatform> clazz : list) {
+            Collection<Class<?>> list = ClassSearch.findClass(pack, true, ClassSearch.and(IPaymentPlatform.class, Platform.class));
+            for (Class<?> clazz : list) {
                 Platform ann = clazz.getAnnotationsByType(Platform.class)[0];
                 String platform = ann.value();
-                platforms.put(platform, clazz.newInstance());
+                platforms.put(platform, (IPaymentPlatform) clazz.newInstance());
             }
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
             logger.error("load payment impl error, the base package is " + pack, e);

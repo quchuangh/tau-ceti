@@ -17,6 +17,7 @@
         <module>tau-ceti-spring</module>
         <module>tau-ceti-rowquery</module>
         <module>tau-ceti-payment-sdk</module>
+        <module>tau-ceti-generator</module>
     </modules>
     <build>
         <!--<pluginManagement>-->

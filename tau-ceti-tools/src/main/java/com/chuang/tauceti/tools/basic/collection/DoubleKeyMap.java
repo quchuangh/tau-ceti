@@ -76,4 +76,8 @@ public class DoubleKeyMap<K1, K2, V> {
     public Collection<Map<K2, V>> maps() {
         return map.values();
     }
+
+    public UnmodifiableDoubleKeyMap<K1, K2, V> toUnmodifiable() {
+        return new UnmodifiableDoubleKeyMap<>(this);
+    }
 }

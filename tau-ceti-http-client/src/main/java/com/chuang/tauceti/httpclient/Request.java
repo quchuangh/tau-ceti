@@ -2,18 +2,20 @@ package com.chuang.tauceti.httpclient;
 
 import com.chuang.tauceti.httpclient.async.AsyncHttpClient;
 import com.chuang.tauceti.httpclient.sync.HttpClient;
+import com.chuang.tauceti.support.exception.BusinessException;
 import org.apache.http.HttpEntity;
+import org.apache.http.NameValuePair;
 import org.apache.http.annotation.Contract;
 import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.message.BasicNameValuePair;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.io.UnsupportedEncodingException;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
@@ -36,23 +38,33 @@ public class Request implements Supplier<HttpRequestBase> {
     private final Map<String, String> headers;
     private final Map<String, String> params;
     private final HttpEntity entity;
-    //@GuardedBy("this")
-    private HttpRequestBase base;
+    private final String body;
+    private final HttpRequestBase base;
 
     private final String charset;
 
     private CoverableRequestConfig config;
 
 
-    public Request(String url, HttpMethod method, Map<String, String> headers, Map<String, String> params, HttpEntity entity, String charset, CoverableRequestConfig config) {
+    public Request(String url,
+                   HttpMethod method,
+                   Map<String, String> headers,
+                   Map<String, String> params,
+                   String body,
+                   HttpEntity entity,
+                   String charset,
+                   CoverableRequestConfig config) {
+
+        this.base = Tools.initBase(method, url);
         this.method = method;
-        this.headers = headers;
-        this.params = params;
+        this.headers = Collections.unmodifiableMap(headers);
         this.charset = charset;
-        this.entity = entity;
-        this.url = url;
         this.config = config;
-        initBase();
+        this.params = Collections.unmodifiableMap(params);
+        this.url = url;
+        this.body = body;
+        this.entity = entity;
+
     }
 
     public HttpMethod getMethod() {
@@ -61,6 +73,10 @@ public class Request implements Supplier<HttpRequestBase> {
 
     public Map<String, String> getHeaders() {
         return headers;
+    }
+
+    public String getBody() {
+        return body;
     }
 
     public Map<String, String> getParams() {
@@ -122,34 +138,6 @@ public class Request implements Supplier<HttpRequestBase> {
         return asyncExecute().thenApply(Response::asString);
     }
 
-    private synchronized void initBase() {
-
-        if(HttpMethod.DELETE == method) {
-            this.base = new HttpDelete(url);
-        }
-        if(HttpMethod.GET == method) {
-            this.base = new HttpGet(url);
-        }
-        if(HttpMethod.HEAD == method) {
-            this.base = new HttpHead(url);
-        }
-        if(HttpMethod.OPTIONS == method) {
-            this.base = new HttpOptions(url);
-        }
-        if(HttpMethod.PATCH == method){
-            this.base = new HttpPatch(url);
-        }
-        if(HttpMethod.POST == method) {
-            this.base = new HttpPost(url);
-        }
-        if(HttpMethod.PUT == method) {
-            this.base = new HttpPut(url);
-        }
-        if(HttpMethod.TRACE == method) {
-            this.base = new HttpTrace(url);
-        }
-
-    }
 
     public static Builder newBuilder() {
         return new Builder();
@@ -252,29 +240,32 @@ public class Request implements Supplier<HttpRequestBase> {
             return this;
         }
 
+        /**
+         * body 和 entity 不能共存
+         * 优先使用body
+         */
         public Builder body(String body) {
             this.body = body;
             this.params.clear();
             return this;
         }
 
+        /**
+         * 不能和body共存，如果加入了body，则entity无效
+         */
         public Builder entity(HttpEntity entity) {
             this.entity = entity;
             return this;
         }
 
         public Builder url(String url) {
-            if(url.contains("?")) {
-                String[] uri = url.split("\\?");
-                try {
-                    url = uri[0];
-                    queryString(uri[1]);
-                } catch (Exception ignore) { }
-            }
             this.url = url.trim();
             return this;
         }
 
+        /**
+         * 将querystring转化为参数
+         */
         public Builder queryString(String queryString) {
             String[] args = queryString.split("&");
             Arrays.stream(args).forEach(s -> {
@@ -289,13 +280,8 @@ public class Request implements Supplier<HttpRequestBase> {
         }
 
         public Request build() {
-            if(null != body) {
-                this.entity = new StringEntity(body, charset);
-                params.clear();
-            }
-            return new Request(url, method, headers, params, entity, charset, config.build());
+            return new Request(url, method, headers, params, body, entity, charset, config.build());
         }
-
     }
 
     public static class MyCoverableConfigBuilder extends CoverableRequestConfig.Builder<MyCoverableConfigBuilder> {

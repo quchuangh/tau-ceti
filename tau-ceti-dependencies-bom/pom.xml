@@ -59,12 +59,23 @@
             </dependency>
             <dependency>
                 <groupId>com.chuang.tau-ceti</groupId>
+                <artifactId>tau-ceti-generator</artifactId>
+                <version>${tau-ceti.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.chuang.tau-ceti</groupId>
                 <artifactId>tau-ceti-tools</artifactId>
                 <version>${tau-ceti.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.chuang.tau-ceti</groupId>
                 <artifactId>tau-ceti-http-client</artifactId>
+                <version>${tau-ceti.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chuang.tau-ceti</groupId>
+                <artifactId>tau-ceti-rowquery</artifactId>
                 <version>${tau-ceti.version}</version>
             </dependency>
 
@@ -77,7 +88,19 @@
 
             <dependency>
                 <groupId>com.chuang.tau-ceti</groupId>
+                <artifactId>tau-ceti-boots</artifactId>
+                <version>${tau-ceti.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chuang.tau-ceti</groupId>
                 <artifactId>tau-ceti-shiro-spring-boot-starter</artifactId>
+                <version>${tau-ceti.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chuang.tau-ceti</groupId>
+                <artifactId>tau-ceti-shiro-jwt-spring-boot-starter</artifactId>
                 <version>${tau-ceti.version}</version>
             </dependency>
 

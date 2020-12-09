@@ -115,7 +115,11 @@ public class Response {
     }
 
     public Optional<String> getResponseHeaderCharset() {
-        String contentType = response.getFirstHeader(HttpHeaders.CONTENT_TYPE).getValue();
+        String contentType = null;
+        Header header = response.getFirstHeader(HttpHeaders.CONTENT_TYPE);
+        if(null != header) {
+            contentType = header.getValue();
+        }
         if(null == contentType) {
             return Optional.empty();
         }

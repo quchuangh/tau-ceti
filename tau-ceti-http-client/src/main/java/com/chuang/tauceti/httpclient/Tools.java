@@ -1,11 +1,12 @@
 package com.chuang.tauceti.httpclient;
 
+import com.chuang.tauceti.support.exception.BusinessException;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.*;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
@@ -78,6 +79,10 @@ public class Tools {
 		if(null != request.getEntity()) {
 			return request.getEntity();
 		}
+		if(null != request.getBody() && !request.getBody().isEmpty()) {
+			return new StringEntity(request.getBody(), charset);
+		}
+
 		Map<String, String> params = request.getParams();
 
 		if (null != params && !params.isEmpty()) {
@@ -94,6 +99,29 @@ public class Tools {
 			return new UrlEncodedFormEntity(pairs, charset);
 		} else {
 			return request.getEntity();
+		}
+	}
+
+	public static HttpRequestBase initBase(HttpMethod method, String url) {
+		switch (method) {
+			case GET:
+				return new HttpGet(url);
+			case POST:
+				return new HttpPost(url);
+			case DELETE:
+				return new HttpDelete(url);
+			case HEAD:
+				return new HttpHead(url);
+			case OPTIONS:
+				return new HttpOptions(url);
+			case PUT:
+				return new HttpPut(url);
+			case PATCH:
+				return new HttpPatch(url);
+			case TRACE:
+				return new HttpTrace(url);
+			default:
+				throw new BusinessException(-1, "http method error: " + method);
 		}
 	}
 

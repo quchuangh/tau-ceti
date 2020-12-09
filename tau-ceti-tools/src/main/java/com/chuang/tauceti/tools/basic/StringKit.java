@@ -140,7 +140,7 @@ public class StringKit {
 	 * @param str 被检测的字符串
 	 * @return 是否为非空
 	 */
-	public static boolean notBlank(@Nullable String str) {
+	public static boolean isNotBlank(@Nullable String str) {
 		return !isBlank(str);
 	}
 
@@ -173,7 +173,7 @@ public class StringKit {
 			return true;
 		}
 		for (String str : strs) {
-			if (notBlank(str)) {
+			if (isNotBlank(str)) {
 				return false;
 			}
 		}

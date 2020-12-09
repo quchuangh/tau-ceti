@@ -1,12 +1,14 @@
 package com.chuang.tauceti.tools.basic.reflect;
 
 
+import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -45,13 +47,12 @@ public class ClassSearch {
 	 *
 	 * @throws ClassNotFoundException 通常抛出该异常的原因是，该类内部使用、继承、实现了一个无法在本工程和依赖项中找到的类或接口。
 	 */
-	@SuppressWarnings("unchecked")
-	public static <E> Collection<Class<E>> findClass(String rootPackage, boolean recursive, Predicate<Class<?>> condition) throws ClassNotFoundException {
+	public static  Collection<Class<?>> findClass(String rootPackage, boolean recursive, Predicate<Class<?>> condition) throws ClassNotFoundException {
 		Collection<String> classNames = getClassNames(rootPackage, recursive);
 		
-		Collection<Class<E>> classes = new ArrayList<>();
+		Collection<Class<?>> classes = new ArrayList<>();
 		for(String className : classNames) {
-			Class<E> clazz = (Class<E>) Thread.currentThread().getContextClassLoader().loadClass(className);
+			Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(className);
 			if(condition.test(clazz)) {
 				classes.add(clazz);
 			}
@@ -225,32 +226,18 @@ public class ClassSearch {
     private static String removeClassSuffix(String className) {
     	return className.substring(0,  className.length() - 6);  
     }
-    
-
-	public static class OrCondition  implements Predicate<Class<?>> {
-
-		private final Class<?>[] checkClass;
-		public OrCondition(Class<?>... checkClass) {
-			this.checkClass = checkClass;
-		}
-
-		@Override
-		public boolean test(Class clazz) {
-			for(Class<?> cc : checkClass) {
-				if(cc.isAnnotation() && (clazz.getAnnotation(cc) != null)) {
-					return true;
-				} else if(cc.isAssignableFrom(clazz)) {
-					return true;
-				}
-			}
-			return false;
-		}
 
 
+
+	public static Predicate<Class<?>> and(Class<?>... classes) {
+    	return new AndCondition(classes);
 	}
 
+	private static Predicate<Class<?>> or(Class<?>... classes) {
+    	return new OrCondition(classes);
+	}
 
-	public static class AndCondition implements Predicate<Class<?>> {
+	private static class AndCondition implements Predicate<Class<?>> {
 		private final Class<?>[] checkClass;
 		public AndCondition(Class<?>... checkClass) {
 			this.checkClass = checkClass;
@@ -271,6 +258,28 @@ public class ClassSearch {
 			}
 			return true;
 		}
+
+	}
+
+	private static class OrCondition  implements Predicate<Class<?>> {
+
+		private final Class<?>[] checkClass;
+		public OrCondition(Class<?>... checkClass) {
+			this.checkClass = checkClass;
+		}
+
+		@Override
+		public boolean test(Class clazz) {
+			for(Class<?> cc : checkClass) {
+				if(cc.isAnnotation() && (clazz.getAnnotation(cc) != null)) {
+					return true;
+				} else if(cc.isAssignableFrom(clazz)) {
+					return true;
+				}
+			}
+			return false;
+		}
+
 
 	}
 }

@@ -85,9 +85,7 @@ public class ConvertKit {
 		try {
 			return DATE_FORMAT_0.parse(date);
 		} catch (Exception e) {
-
 			return DATE_FORMAT_1.parse(date);
-
 		}
 	}
 
