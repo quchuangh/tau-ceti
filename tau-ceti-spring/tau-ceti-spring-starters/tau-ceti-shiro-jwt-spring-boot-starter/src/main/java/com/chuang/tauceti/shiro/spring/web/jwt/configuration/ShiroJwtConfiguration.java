@@ -1,19 +1,23 @@
 package com.chuang.tauceti.shiro.spring.web.jwt.configuration;
 
+import com.chuang.tauceti.shiro.spring.web.jwt.JwtCredentialsMatcher;
 import com.chuang.tauceti.shiro.spring.web.jwt.JwtManager;
-import com.chuang.tauceti.shiro.spring.web.jwt.JwtPayloadConvert;
 import com.chuang.tauceti.shiro.spring.web.jwt.StatelessWebSubjectFactory;
-import com.chuang.tauceti.shiro.spring.web.jwt.filter.JwtFilter;
+import com.chuang.tauceti.shiro.spring.web.jwt.filter.JwtAuthFilter;
+import com.chuang.tauceti.shiro.spring.web.jwt.filter.PasswordFilter;
 import com.chuang.tauceti.shiro.spring.web.jwt.properties.ShiroProperties;
-import com.chuang.tauceti.shiro.spring.web.jwt.realm.IRealmService;
+import com.chuang.tauceti.shiro.spring.web.jwt.realm.IAuthService;
 import com.chuang.tauceti.shiro.spring.web.jwt.realm.JwtRealm;
 import com.chuang.tauceti.shiro.spring.web.jwt.realm.LoginRealm;
 import com.chuang.tauceti.support.exception.SystemException;
 import com.chuang.tauceti.tools.basic.collection.CollectionKit;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.authz.Authorizer;
 import org.apache.shiro.mgt.SessionStorageEvaluator;
+import org.apache.shiro.mgt.SessionsSecurityManager;
 import org.apache.shiro.mgt.SubjectFactory;
+import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.spring.web.config.AbstractShiroWebConfiguration;
 import org.apache.shiro.spring.web.config.DefaultShiroFilterChainDefinition;
 import org.apache.shiro.spring.web.config.ShiroFilterChainDefinition;
@@ -26,6 +30,7 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.Resource;
 import javax.servlet.Filter;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,37 +47,86 @@ import java.util.Map;
 public class ShiroJwtConfiguration extends AbstractShiroWebConfiguration {
 
 
+
     @Resource private ShiroProperties shiroProperties;
-    @Resource private JwtPayloadConvert convert;
-
-//    @Bean
-//    public CredentialsMatcher credentialsMatcher() {
-//        return new JwtCredentialsMatcher();
-//    }
 
 
+    @Bean
+    public JwtAuthFilter jwtFilter() {
+        return new JwtAuthFilter(manager(), shiroProperties);
+    }
+
+    @Bean
+    public PasswordFilter passwordFilter() {
+        return new PasswordFilter(manager(), shiroProperties, authService());
+    }
 
     @Bean
     public JwtManager manager() {
-        return new JwtManager(shiroProperties.getJwt(), convert);
+        return new JwtManager(shiroProperties.getJwt());
     }
 
-    @Bean
+
+    @Bean(name = "filterMap")
     public Map<String, Filter> filterMap() {
         Map<String, Filter> filterMap = new LinkedHashMap<>();
-        filterMap.put("jwt", new JwtFilter(manager(), shiroProperties.getJwt()));
+        filterMap.put("auth", passwordFilter());
+        filterMap.put("jwt", jwtFilter());
         return filterMap;
     }
 
+
+//    /**
+//     * @see org.apache.shiro.spring.web.config.AbstractShiroWebFilterConfiguration
+//     */
+//
+
     @Bean
-    @ConditionalOnMissingBean
-    public LoginRealm passwordRealm() {
-        return new LoginRealm(realmService());
+    public ShiroFilterFactoryBean shiroFilterFactoryBean() {
+        ShiroFilterFactoryBean filterFactoryBean = new ShiroFilterFactoryBean();
+
+        filterFactoryBean.setLoginUrl(shiroProperties.getLoginUrl());
+        filterFactoryBean.setSuccessUrl(shiroProperties.getSuccessUrl());
+        filterFactoryBean.setUnauthorizedUrl(shiroProperties.getUnauthorizedUrl());
+
+        filterFactoryBean.setSecurityManager(createSecurityManager());
+//        filterFactoryBean.setGlobalFilters(globalFilters());
+        filterFactoryBean.setFilterChainDefinitionMap(shiroFilterChainDefinition().getFilterChainMap());
+        filterFactoryBean.setFilters(filterMap());
+
+        return filterFactoryBean;
+    }
+
+    @Bean
+    @Override
+    protected SessionsSecurityManager createSecurityManager() {
+        SessionsSecurityManager securityManager = super.createSecurityManager();
+        securityManager.setAuthenticator(authenticator());
+        securityManager.setAuthorizer(authorizer());
+        securityManager.setRealms(Arrays.asList(loginRealm(), jwtRealm()));
+        securityManager.setSessionManager(sessionManager());
+        securityManager.setEventBus(eventBus);
+
+        if (cacheManager != null) {
+            securityManager.setCacheManager(cacheManager);
+        }
+
+        return securityManager;
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public IRealmService realmService() {
+    public HashedCredentialsMatcher hashedCredentialsMatcher() {
+        HashedCredentialsMatcher credentialsMatcher = new HashedCredentialsMatcher();
+        credentialsMatcher.setHashIterations(shiroProperties.getHashedCredential().getIterations());
+        credentialsMatcher.setHashAlgorithmName(shiroProperties.getHashedCredential().getAlgorithm());
+        credentialsMatcher.setStoredCredentialsHexEncoded(true);
+        return credentialsMatcher;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public IAuthService authService() {
         throw new SystemException("IRealmService bean can not found~~");
     }
 
@@ -80,8 +134,19 @@ public class ShiroJwtConfiguration extends AbstractShiroWebConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public JwtRealm jwtRealm() {
-        return new JwtRealm(realmService());
+        JwtRealm realm = new JwtRealm(manager(), authService());
+        realm.setCredentialsMatcher(new JwtCredentialsMatcher());
+        return realm;
     }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public LoginRealm loginRealm() {
+        LoginRealm realm = new LoginRealm(authService());
+        realm.setCredentialsMatcher(hashedCredentialsMatcher());
+        return realm;
+    }
+
 
     /**
      * Shiro starter 填坑说明
@@ -128,6 +193,8 @@ public class ShiroJwtConfiguration extends AbstractShiroWebConfiguration {
     private Map<String, String> getFilterChainDefinitionMap() {
 
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
+
+
         if(shiroProperties.getFilterChainDefinitions() != null) {
             filterChainDefinitionMap.putAll(shiroProperties.getFilterChainDefinitions());
         }
@@ -143,6 +210,8 @@ public class ShiroJwtConfiguration extends AbstractShiroWebConfiguration {
                 }
             });
         }
+        filterChainDefinitionMap.put(shiroProperties.getLoginUrl(), "auth");
+        filterChainDefinitionMap.put("/**", "jwt");
         return filterChainDefinitionMap;
     }
 

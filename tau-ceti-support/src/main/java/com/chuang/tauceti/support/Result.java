@@ -2,15 +2,16 @@ package com.chuang.tauceti.support;
 
 
 import com.chuang.tauceti.support.enums.Whether;
+import com.chuang.tauceti.support.exception.CodeException;
 
 import javax.annotation.Nullable;
 import java.util.function.Function;
 
 public final class Result<T> {
 
-    public static final int SUCCESS_CODE = 1;
-    public static final int FAIL_CODE = 2;
-    public static final int UNKNOWN_CODE = 0;
+    public static final int SUCCESS_CODE = 0;
+    public static final int FAIL_CODE = CodeException.DEFAULT_ERROR_CODE;
+    public static final int UNKNOWN_CODE = -2;
 
     private final Whether whether;
 

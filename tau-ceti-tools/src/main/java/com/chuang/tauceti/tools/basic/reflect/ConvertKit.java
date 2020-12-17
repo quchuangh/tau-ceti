@@ -525,7 +525,7 @@ public class ConvertKit {
 		for (int i = 0; i < values.length; i++) {
 			final Integer v = toInt(values[i], null);
 			if (null == v && !isIgnoreConvertError) {
-				throw new BusinessException(Result.FAIL_CODE, StringKit.format("Convert [{}] to Integer error!", values[i]));
+				throw new BusinessException("Convert [{}] to Integer error!", values[i]);
 			}
 			ints[i] = v;
 		}
@@ -642,7 +642,7 @@ public class ConvertKit {
 		for (int i = 0; i < values.length; i++) {
 			final Long v = toLong(values[i], null);
 			if (null == v && !isIgnoreConvertError) {
-				throw new BusinessException(Result.FAIL_CODE, StringKit.format("Convert [{}] to Long error!", values[i]));
+				throw new BusinessException("Convert [{}] to Long error!", values[i]);
 			}
 			longs[i] = v;
 		}
@@ -707,7 +707,7 @@ public class ConvertKit {
 		for (int i = 0; i < values.length; i++) {
 			final Double v = toDouble(values[i], null);
 			if (null == v && !isIgnoreConvertError) {
-				throw new BusinessException(Result.FAIL_CODE, StringKit.format("Convert [{}] to Double error!", values[i]));
+				throw new BusinessException("Convert [{}] to Double error!", values[i]);
 			}
 			doubles[i] = v;
 		}

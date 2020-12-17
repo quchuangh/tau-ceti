@@ -92,7 +92,7 @@ public interface IPaymentPlatform {
     CompletableFuture<Result<DepositInfo>> deposit(DepositRequest request, PaymentPlatformConfig config);
 
     default CompletableFuture<Result<QueryInfo>> query(QueryRequest info, PaymentPlatformConfig config) {
-        return FutureKit.error(new BusinessException(Result.FAIL_CODE, config.getPlatform() + " do not support query status"));
+        return FutureKit.error(new BusinessException(config.getPlatform() + " do not support query status"));
     }
 
     /**
@@ -101,11 +101,11 @@ public interface IPaymentPlatform {
     Result<DepositCallbackInfo> depositCallback(Map<String, String> callbackParams, String body, boolean front, PaymentPlatformConfig config);
 
     default CompletableFuture<Result<WithdrawInfo>> withdraw(WithdrawRequest request, PaymentPlatformConfig config) {
-        throw new BusinessException(Result.FAIL_CODE, "withdraw not support");
+        throw new BusinessException("withdraw not support");
     }
 
     default Result<WithdrawCallbackInfo> withdrawCallback(Map<String, String> callbackParams, String body, PaymentPlatformConfig config) {
-        throw new BusinessException(Result.FAIL_CODE, "withdraw callback not support");
+        throw new BusinessException("withdraw callback not support");
     }
 
 

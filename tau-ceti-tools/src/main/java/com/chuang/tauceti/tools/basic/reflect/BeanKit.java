@@ -1,6 +1,5 @@
 package com.chuang.tauceti.tools.basic.reflect;
 
-import com.chuang.tauceti.support.Result;
 import com.chuang.tauceti.support.exception.BusinessException;
 import com.chuang.tauceti.support.exception.SystemException;
 import com.chuang.tauceti.tools.basic.ObjectKit;
@@ -239,7 +238,7 @@ public class BeanKit {
                 }
             }
         } catch (Exception e) {
-            throw new BusinessException(Result.FAIL_CODE, "", e);
+            throw new BusinessException("", e);
         }
         return bean;
     }
@@ -263,7 +262,7 @@ public class BeanKit {
             copyProperties(source, t, CopyOptions.create());
             return t;
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new BusinessException(Result.FAIL_CODE, "复制对象失败");
+            throw new BusinessException("复制对象失败");
         }
     }
     /**

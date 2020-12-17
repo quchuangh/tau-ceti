@@ -6,46 +6,21 @@ import com.chuang.tauceti.support.exception.BusinessException;
 import com.chuang.tauceti.tools.basic.StringKit;
 import com.chuang.tauceti.tools.third.servlet.HttpKit;
 import com.nimbusds.jose.JOSEException;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
+import java.util.UUID;
 
 public class JwtManager {
 
     private final JwtProperties properties;
-    private final JwtPayloadConvert convert;
 
-    public JwtManager(JwtProperties properties, JwtPayloadConvert convert) {
+    public JwtManager(JwtProperties properties) {
         this.properties = properties;
-        this.convert = convert;
     }
 
 
-
-    public JwtPayload payload() {
-        String token = token();
-        if(StringKit.isBlank(token)) {
-            throw new BusinessException(-1, "Jwt 为空");
-        }
-        String payloadStr;
-        try {
-            payloadStr = JwtUtil.verifySignature(token(), properties.getSecret());
-        } catch (JOSEException | JwtUtil.JwtSignatureVerifyException | ParseException e) {
-            throw new BusinessException(-1, "jwt 解码错误", e);
-        }
-        return convert.convert(payloadStr);
-    }
-
-    public void refresh(JwtPayload payload) {
-        payload.setExp(properties.getExpire());
-    }
-
-    public String token(JwtPayload payload) throws JOSEException {
-        return JwtUtil.generateToken(JSONObject.toJSONString(payload), properties.getSecret());
-    }
-
-    public String token() {
+    public String requestToken() {
         HttpServletRequest request = HttpKit.getRequest().orElseThrow(() -> new IllegalArgumentException("无法从request中获取Jwt，原因：request为空"));
         // 从请求头中获取token
         String token = request.getHeader(properties.getTokenHeader());
@@ -56,4 +31,58 @@ public class JwtManager {
         return token;
     }
 
+    public JwtPayload makePayload(String aud, Object body) {
+        long now = System.currentTimeMillis();
+        return JwtPayload.builder()
+                .aud(aud)
+                .iss(properties.getIssuer())
+                .exp(now + properties.getExpire())
+                .sub(properties.getSubject())
+                .nbf(now)
+                .iat(now)
+                .jti(UUID.randomUUID().toString())
+                .body(body)
+                .bodyClass(body.getClass().getName())
+                .build();
+    }
+
+    public void refresh(JwtPayload payload) {
+        payload.setExp(System.currentTimeMillis() + properties.getExpire());
+    }
+
+    public String makeToken(String aud, Object body) throws JOSEException {
+        return makeToken(makePayload(aud, body));
+    }
+
+    public String makeToken(JwtPayload payload) throws JOSEException {
+        return JwtUtil.generateToken(JSONObject.toJSONString(payload), properties.getSecret());
+    }
+
+    public JwtPayload parse(String token) throws ClassNotFoundException {
+        String payloadStr;
+        try {
+            payloadStr = JwtUtil.verifySignature(token, properties.getSecret());
+        } catch (JOSEException | JwtUtil.JwtSignatureVerifyException | ParseException e) {
+            throw new BusinessException("jwt 解码错误", e);
+        }
+        return parse(JSONObject.parseObject(payloadStr));
+    }
+
+    private JwtPayload parse(JSONObject json) throws ClassNotFoundException {
+        JSONObject bodyJson = json.getJSONObject("body");
+        String bodyClass = json.getString("bodyClass");
+
+        Object body = bodyJson.getObject("body", Class.forName(bodyClass));
+        return JwtPayload.builder()
+                .aud(json.getString("aud"))
+                .iss(json.getString("iss"))
+                .exp(json.getLong("exp"))
+                .sub(json.getString("sub"))
+                .nbf(json.getLong("nbf"))
+                .iat(json.getLong("iat"))
+                .jti(json.getString("jti"))
+                .bodyClass(bodyClass)
+                .body(body)
+                .build();
+    }
 }

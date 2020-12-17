@@ -8,4 +8,5 @@ import org.springframework.context.annotation.Import;
 @Import(ShiroJwtConfiguration.class)
 @AutoConfigureBefore(ShiroWebAutoConfiguration.class)
 public class ShiroJwtAutoConfiguration {
+
 }

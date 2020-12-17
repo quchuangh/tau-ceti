@@ -121,7 +121,7 @@ public class Tools {
 			case TRACE:
 				return new HttpTrace(url);
 			default:
-				throw new BusinessException(-1, "http method error: " + method);
+				throw new BusinessException("http method error: " + method);
 		}
 	}
 

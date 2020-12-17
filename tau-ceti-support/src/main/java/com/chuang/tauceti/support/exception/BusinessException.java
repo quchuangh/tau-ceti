@@ -1,20 +1,25 @@
 package com.chuang.tauceti.support.exception;
 
-import java.text.MessageFormat;
 import java.util.Optional;
 
 public class BusinessException extends CodeException {
-    public BusinessException(int code, String msg) {
-        super(code, msg);
-    }
-
-    public BusinessException(int code, String msg, Throwable e) {
-        super(code, msg, e);
-    }
 
     public BusinessException(int code, String pattern, Object... args) {
-        this(code, MessageFormat.format(pattern, args));
+        super(code, pattern, args);
     }
+
+    public BusinessException(String pattern, Object... args) {
+        super(pattern, args);
+    }
+
+    public BusinessException(int code, Throwable e, String pattern, Object... args) {
+        super(code, e, pattern, args);
+    }
+
+    public BusinessException(Throwable e, String pattern, Object... args) {
+        super(e, pattern, args);
+    }
+
 
     public static boolean hasBusinessException(Throwable e) {
         if(e instanceof BusinessException) {

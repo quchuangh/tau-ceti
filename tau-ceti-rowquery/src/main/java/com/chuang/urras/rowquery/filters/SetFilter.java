@@ -2,7 +2,6 @@ package com.chuang.urras.rowquery.filters;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.chuang.tauceti.support.Result;
 import com.chuang.tauceti.support.exception.BusinessException;
 import com.chuang.tauceti.tools.basic.reflect.ConvertKit;
 import lombok.Data;
@@ -36,7 +35,7 @@ public class SetFilter implements RowQuery.Filter {
     @Override
     public <T> void handle(QueryWrapper<T> criteria, Class<T> objClazz) {
         if(values.length == 0) {
-            throw new BusinessException(Result.FAIL_CODE, field + "至少要选一项进行查询。否则查询无意义。");
+            throw new BusinessException("{}至少要选一项进行查询。否则查询无意义。", field);
         }
 
         List<Object> list = new ArrayList<>();

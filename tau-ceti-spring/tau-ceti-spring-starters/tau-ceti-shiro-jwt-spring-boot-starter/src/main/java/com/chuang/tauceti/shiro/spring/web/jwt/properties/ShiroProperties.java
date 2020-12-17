@@ -11,7 +11,15 @@ import java.util.List;
 @ConfigurationProperties(prefix = "shiro")
 public class ShiroProperties {
 
-    private boolean enable = true;
+    private boolean enabled = true;
+
+    private String loginUrl = "/login";
+
+    private String successUrl = "/";
+
+    private String unauthorizedUrl;
+
+    private boolean loginHosting = true;
 
     /**
      * 设置无需权限路径集合
@@ -21,5 +29,8 @@ public class ShiroProperties {
     private LinkedHashMap<String, String> filterChainDefinitions;
 
     @NestedConfigurationProperty
-    private JwtProperties jwt;
+    private HashedCredentialProperties hashedCredential = new HashedCredentialProperties();
+
+    @NestedConfigurationProperty
+    private JwtProperties jwt = new JwtProperties();
 }

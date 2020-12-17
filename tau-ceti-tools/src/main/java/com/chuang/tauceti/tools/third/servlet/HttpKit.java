@@ -15,6 +15,8 @@
  */
 package com.chuang.tauceti.tools.third.servlet;
 
+import com.alibaba.fastjson.JSONObject;
+import com.chuang.tauceti.support.exception.SystemException;
 import com.chuang.tauceti.tools.basic.RegexKit;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -85,6 +87,25 @@ public class HttpKit {
             values.put(paramName, paramValue);
         }
         return values;
+    }
+
+    public static void printText(String contentType, String charset, String text) {
+        getResponse().ifPresent(response -> {
+            response.setCharacterEncoding(charset);
+            response.setContentType(contentType);
+            try {
+                response.getWriter().println(text);
+                response.getWriter().flush();
+                response.getWriter().close();
+            } catch (IOException e) {
+                throw new SystemException("", e);
+            }
+
+        });
+    }
+
+    public static void printJson(Object obj) {
+        printText("text/javascript;charset=UTF-8", "UTF-8", JSONObject.toJSONString(obj));
     }
 
     public static String getIpAddress(HttpServletRequest request) {

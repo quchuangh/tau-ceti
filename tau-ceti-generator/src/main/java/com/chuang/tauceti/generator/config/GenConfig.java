@@ -47,12 +47,9 @@ import java.util.stream.Collectors;
  *  5, 输出模板
  * 综上，虽然每个 TableInfo 都会创建一个objectMap，但因为MP只会通过 InjectionConfig.getMap来获取参数。且 InjectionConfig是独一份的。
  * 因此无论在 initMap还是 initTableMap中初始化,自定义参数都只能放在同一个InjectionConfig的map对象中。
- * 这意味着，initTableMap中创建的变量并不是特定 table独享。每个table创建后放入map的对象都会被后来的table所使用。
+ * 这意味着，initTableMap中创建的变量并不是特定 table独享。每个table创建后放入map的对象都会被后来的table所使用。重写时如果不小心可能会出现相同名称参数被覆盖的情况
  *
- * GenConfig 将尝试重写 InjectionConfig, 让 initMap 的参数是全局的，而 initTableMap的参数是每个表独享的，避免可能造成的冲突。
- * 为避免误操作，GenConfig不提供直接对InjectionConfig的操作，而是通过 GenConfig 来提供相关的接口。
- *
- * GenConfig 还将提供更细粒度的参数, 详细说明请查看 {@link ContextInitializer}
+ * CT 重写了 InjectionConfig, 它将提供更细粒度的参数, 详细说明请查看 {@link ContextInitializer}
  *
  * @see ContextInitializer
  * @see Generator
@@ -117,6 +114,7 @@ public class GenConfig {
         this.template = new TemplateConfig();
         template.setController(null);
         template.setXml(null);
+        template.setMapper(null);
         template.setEntity(null);
         template.setEntityKt(null);
         template.setService(null);

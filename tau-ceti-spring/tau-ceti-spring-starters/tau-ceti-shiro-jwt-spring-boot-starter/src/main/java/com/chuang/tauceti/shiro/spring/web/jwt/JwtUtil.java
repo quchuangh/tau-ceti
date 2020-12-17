@@ -1,6 +1,5 @@
 package com.chuang.tauceti.shiro.spring.web.jwt;
 
-import com.alibaba.fastjson.JSONObject;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;

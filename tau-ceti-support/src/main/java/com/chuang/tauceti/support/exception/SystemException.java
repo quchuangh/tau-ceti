@@ -4,20 +4,20 @@ import java.util.Optional;
 
 public class SystemException extends CodeException {
 
-    public SystemException(String msg) {
-        super(-1, msg);
+    public SystemException(int code, String pattern, Object... args) {
+        super(code, pattern, args);
     }
 
-    public SystemException(int code, String msg) {
-        super(code, msg);
+    public SystemException(String pattern, Object... args) {
+        super(pattern, args);
     }
 
-    public SystemException(String msg, Throwable e) {
-        super(-1, msg, e);
+    public SystemException(int code, Throwable e, String pattern, Object... args) {
+        super(code, e, pattern, args);
     }
 
-    public SystemException(int code, String msg, Throwable e) {
-        super(code, msg, e);
+    public SystemException(Throwable e, String pattern, Object... args) {
+        super(e, pattern, args);
     }
 
     public static boolean hasSystemException(Throwable e) {

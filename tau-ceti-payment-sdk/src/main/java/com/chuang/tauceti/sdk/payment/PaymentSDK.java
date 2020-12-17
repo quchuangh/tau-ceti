@@ -85,44 +85,38 @@ public class PaymentSDK {
      * 发起一次请求，自动加载配置
      */
     public CompletableFuture<Result<DepositInfo>> deposit(DepositRequest request) {
-        Optional<PaymentPlatformConfig> config = this.configPolicy.loadConfig(request, this);
-        if(config.isPresent()) {
-            throw new BusinessException(Result.FAIL_CODE, "没有可用通道");
-        }
+        PaymentPlatformConfig config = this.configPolicy.loadConfig(request, this)
+                .orElseThrow(() -> new BusinessException("没有可用通道"));
 
-        IPaymentPlatform platform = platforms.get(config.get().getPlatform());
+
+        IPaymentPlatform platform = platforms.get(config.getPlatform());
         if(null == platform) {
-            throw new BusinessException(Result.FAIL_CODE, "sdk 不支持 " + config.get().getPlatform() + " 平台");
+            throw new BusinessException("sdk 不支持 [{}] 平台", config.getPlatform());
         }
-        return deposit(request, config.get());
+        return deposit(request, config);
     }
 
     /**\
      * 发起一次取款，自动加载配置
      */
     public CompletableFuture<Result<WithdrawInfo>> withdraw(WithdrawRequest request) {
-        Optional<PaymentPlatformConfig> config = this.configPolicy.loadConfig(request, this);
-        if(config.isPresent()) {
-            throw new BusinessException(Result.FAIL_CODE, "没有可用通道");
-        }
+        PaymentPlatformConfig config = this.configPolicy.loadConfig(request, this)
+                .orElseThrow(() -> new BusinessException("没有可用通道"));
 
-        IPaymentPlatform platform = platforms.get(config.get().getPlatform());
+        IPaymentPlatform platform = platforms.get(config.getPlatform());
         if(null == platform) {
-            throw new BusinessException(Result.FAIL_CODE, "sdk 不支持 " + config.get().getPlatform() + " 平台");
+            throw new BusinessException("sdk 不支持 [{}] 平台", config.getPlatform());
         }
-        return withdraw(request, config.get());
+        return withdraw(request, config);
     }
 
     /**
      * 根据request和config发起一次存款
-     * @param request
-     * @param config
-     * @return
      */
     public CompletableFuture<Result<DepositInfo>> deposit(DepositRequest request, PaymentPlatformConfig config) {
         IPaymentPlatform platform = platforms.get(config.getPlatform());
         if(null == platform) {
-            throw new BusinessException(Result.FAIL_CODE, "sdk 不支持 " + config.getPlatform() + " 平台");
+            throw new BusinessException("sdk 不支持 [{}] 平台", config.getPlatform());
         }
         return platform.deposit(request, config);
     }
@@ -137,62 +131,56 @@ public class PaymentSDK {
     public CompletableFuture<Result<WithdrawInfo>> withdraw(WithdrawRequest request, PaymentPlatformConfig config) {
         IPaymentPlatform platform = platforms.get(config.getPlatform());
         if(null == platform) {
-            throw new BusinessException(Result.FAIL_CODE, "sdk 不支持 " + config.getPlatform() + " 平台");
+            throw new BusinessException("sdk 不支持 [{}] 平台", config.getPlatform());
         }
         return platform.withdraw(request, config);
     }
 
     public Result<DepositCallbackInfo> depositCallbackHand(Map<String, String> params, String body, boolean isFront, String configKey) {
-        Optional<PaymentPlatformConfig> config = this.configPolicy.loadConfig(configKey);
-        if(!config.isPresent()) {
-            throw new BusinessException(Result.FAIL_CODE, "无法找到配置，key->" + configKey);
-        }
-        IPaymentPlatform platform = platforms.get(config.get().getPlatform());
+        PaymentPlatformConfig config = this.configPolicy.loadConfig(configKey)
+                .orElseThrow(() -> new BusinessException("无法找到配置，key-> {}", configKey));
+
+        IPaymentPlatform platform = platforms.get(config.getPlatform());
         if(null == platform) {
-            throw new BusinessException(Result.FAIL_CODE, "sdk 不支持 " + config.get().getPlatform() + " 平台");
+            throw new BusinessException("sdk 不支持 [{}] 平台", config.getPlatform());
         }
-        return platform.depositCallback(params, body, isFront, config.get());
+        return platform.depositCallback(params, body, isFront, config);
     }
 
     public Result<DepositCallbackInfo> depositCallbackHand(Map<String, String> params, String body, boolean isFront, PaymentPlatformConfig config) {
         IPaymentPlatform platform = platforms.get(config.getPlatform());
         if(null == platform) {
-            throw new BusinessException(Result.FAIL_CODE, "sdk 不支持 " + config.getPlatform() + " 平台");
+            throw new BusinessException("sdk 不支持 [{}] 平台", config.getPlatform());
         }
         return platform.depositCallback(params, body, isFront, config);
     }
 
     public Result<WithdrawCallbackInfo> withdrawCallbackHand(Map<String, String> params, String body, String configKey) {
-        Optional<PaymentPlatformConfig> config = this.configPolicy.loadConfig(configKey);
-        if(!config.isPresent()) {
-            throw new BusinessException(Result.FAIL_CODE, "无法找到配置，key->" + configKey);
-        }
-        IPaymentPlatform platform = platforms.get(config.get().getPlatform());
+        PaymentPlatformConfig config = this.configPolicy.loadConfig(configKey)
+                .orElseThrow(() -> new BusinessException("无法找到配置，key->{}", configKey));
+
+        IPaymentPlatform platform = platforms.get(config.getPlatform());
         if(null == platform) {
-            throw new BusinessException(Result.FAIL_CODE, "sdk 不支持 " + config.get().getPlatform() + " 平台");
+            throw new BusinessException("sdk 不支持 [{}] 平台", config.getPlatform());
         }
-        return platform.withdrawCallback(params, body, config.get());
+        return platform.withdrawCallback(params, body, config);
     }
 
     public Result<WithdrawCallbackInfo> withdrawCallbackHand(Map<String, String> params, String body, PaymentPlatformConfig config) {
         IPaymentPlatform platform = platforms.get(config.getPlatform());
         if(null == platform) {
-            throw new BusinessException(Result.FAIL_CODE, "sdk 不支持 " + config.getPlatform() + " 平台");
+            throw new BusinessException("sdk 不支持 [{}] 平台", config.getPlatform());
         }
         return platform.withdrawCallback(params, body, config);
     }
 
     /**
      * 判断是否支持 特定平台，特定支付类型，以及特定的银行编号。
-     * @param platformCode
-     * @param type
-     * @param bank
-     * @return
      */
     public boolean supportBank(String platformCode, PaymentType type, Bank bank) {
         IPaymentPlatform platform = platforms.get(platformCode);
         if(null == platform) {
-            logger.warn("can not find " + platformCode + ", all platform codes are " + platforms);
+            logger.warn("can not find {}, all platform codes are {}", platformCode, platforms);
             return false;
         }
 
@@ -202,8 +190,8 @@ public class PaymentSDK {
     public CompletableFuture<Result<QueryInfo>> query(QueryRequest info, PaymentPlatformConfig config) {
         IPaymentPlatform platform = platforms.get(config.getPlatform());
         if(null == platform) {
-            logger.warn("can not find " + config.getPlatform() + ", all platform codes are " + platforms);
-            throw new BusinessException(Result.FAIL_CODE, "sdk 不支持 " + config.getPlatform() + " 平台");
+            logger.warn("can not find {}, all platform codes are {}", config.getPlatform(), platforms);
+            throw new BusinessException("sdk 不支持 [{}] 平台", config.getPlatform());
         }
 
         return platform.query(info, config);

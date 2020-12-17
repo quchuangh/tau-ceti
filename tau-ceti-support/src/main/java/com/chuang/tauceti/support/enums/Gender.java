@@ -9,11 +9,11 @@ public enum Gender {
 
     MALE(1, "男"),
     FEMALE(2, "女"),
-    LADY_MAN(3, "人妖");
+    LADY_MAN(3, "同志");
 
     @EnumValue
     private final byte code;
-    private String title;
+    private final String title;
     Gender(byte code, String title) {
         this.code = code;
         this.title = title;

@@ -10,7 +10,7 @@ import com.baomidou.mybatisplus.annotation.EnumValue;
  * 建立这样一个枚举的原因是，java自带的Currency没有提供枚举和常量，为了在本项目内统一货币标准而设计。
  * 如果要新增一个币种，编号必须连贯。
  * 另外，游戏、支付等接口接入时，如果需要币种，可以通过该枚举的 currency 参数来统一标准。
- * 实际上 gi 工程使用的货币接口就是java.util.currency。
+ * 实际上 Anarres 中使用的货币接口就是java.util.currency。
  * ISO 4217 标准可能有变，所以功能必须限制，例如货币兑换比例这里无法去实现。
  * 对于ISO 4217中的准代码都用 @Deprecated 注解了。例如韩元（KRW）
  *
@@ -71,7 +71,7 @@ public enum Currency {
 
     @EnumValue
     private final byte code;
-    private java.util.Currency currency;
+    private final java.util.Currency currency;
 
     Currency(int val, java.util.Currency currency) {
         this.code = (byte)val;
