@@ -6,7 +6,7 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.subject.PrincipalCollection;
 
-public interface IAuthService {
+public interface IShiroService {
 
     /**
      * 根据用户名查找对象

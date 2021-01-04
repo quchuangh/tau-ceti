@@ -1,6 +1,8 @@
 package com.chuang.tauceti.tools.basic.tree;
 
-public interface IRelation<K, V> {
-        K parentID(V t);
-        K myID(V t);
+import com.chuang.tauceti.support.BiValue;
+
+public interface IRelation<ID, T> {
+
+    BiValue<ID, ID> relation(T t);
 }

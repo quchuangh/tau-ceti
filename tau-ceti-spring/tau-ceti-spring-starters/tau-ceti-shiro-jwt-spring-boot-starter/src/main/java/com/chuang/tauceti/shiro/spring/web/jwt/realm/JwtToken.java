@@ -1,26 +1,29 @@
 package com.chuang.tauceti.shiro.spring.web.jwt.realm;
 
+import com.chuang.tauceti.shiro.spring.web.jwt.JwtPayload;
 import lombok.Data;
+import lombok.Getter;
 import org.apache.shiro.authc.AuthenticationToken;
 
-@Data
 public class JwtToken implements AuthenticationToken {
 
+    @Getter
+    private final JwtPayload payload;
+    @Getter
     private final String token;
-    private final String secret;
 
-    public JwtToken(String tokenString, String secret) {
-        this.token = tokenString;
-        this.secret = secret;
+    public JwtToken(JwtPayload payload, String token) {
+        this.payload = payload;
+        this.token = token;
     }
 
     @Override
     public Object getPrincipal() {
-        return token;
+        return payload;
     }
 
     @Override
     public Object getCredentials() {
-        return secret;
+        return token;
     }
 }

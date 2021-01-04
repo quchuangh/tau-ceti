@@ -8,7 +8,9 @@ import com.chuang.tauceti.tools.third.servlet.HttpKit;
 import com.nimbusds.jose.JOSEException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.swing.text.html.Option;
 import java.text.ParseException;
+import java.util.Optional;
 import java.util.UUID;
 
 public class JwtManager {
@@ -20,7 +22,7 @@ public class JwtManager {
     }
 
 
-    public String requestToken() {
+    public Optional<String> requestToken() {
         HttpServletRequest request = HttpKit.getRequest().orElseThrow(() -> new IllegalArgumentException("无法从request中获取Jwt，原因：request为空"));
         // 从请求头中获取token
         String token = request.getHeader(properties.getTokenHeader());
@@ -28,7 +30,7 @@ public class JwtManager {
             // 从请求参数中获取token
             token = request.getParameter(properties.getTokenHeader());
         }
-        return token;
+        return Optional.ofNullable(token);
     }
 
     public JwtPayload makePayload(String aud, Object body) {
@@ -72,7 +74,7 @@ public class JwtManager {
         JSONObject bodyJson = json.getJSONObject("body");
         String bodyClass = json.getString("bodyClass");
 
-        Object body = bodyJson.getObject("body", Class.forName(bodyClass));
+        Object body = bodyJson.toJavaObject(Class.forName(bodyClass));
         return JwtPayload.builder()
                 .aud(json.getString("aud"))
                 .iss(json.getString("iss"))

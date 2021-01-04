@@ -8,7 +8,7 @@ import org.apache.shiro.authc.credential.CredentialsMatcher;
 public class JwtCredentialsMatcher implements CredentialsMatcher {
     @Override
     public boolean doCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) {
-        JwtPayload payload = (JwtPayload)info.getCredentials();
+        JwtPayload payload = (JwtPayload)token.getPrincipal();
         if(payload.expired()) {
             throw new AuthenticationException("token 已经过期");
         }

@@ -5,11 +5,11 @@ import com.chuang.tauceti.shiro.spring.web.jwt.JwtPayload;
 import com.chuang.tauceti.shiro.spring.web.jwt.properties.ShiroProperties;
 import com.chuang.tauceti.shiro.spring.web.jwt.realm.JwtToken;
 import com.chuang.tauceti.support.Result;
+import com.chuang.tauceti.support.exception.BusinessException;
 import com.chuang.tauceti.tools.third.servlet.HttpKit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authz.UnauthenticatedException;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.filter.authc.AuthenticatingFilter;
 import org.apache.shiro.web.util.WebUtils;
@@ -32,8 +32,19 @@ public class JwtAuthFilter extends AuthenticatingFilter {
 
     @Override
     protected AuthenticationToken createToken(ServletRequest servletRequest, ServletResponse servletResponse) {
-        String tokenStr = manager.requestToken();
-        return new JwtToken(tokenStr, properties.getJwt().getSecret());
+        String tokenStr = manager.requestToken()
+                .orElseThrow(() -> new AuthenticationException("[" + WebUtils.toHttp(servletRequest).getRequestURI() + "] can not find request jwt"));
+        if(tokenStr.startsWith("Bearer ")) {
+            tokenStr = tokenStr.substring("Bearer ".length());
+        }
+        JwtPayload payload;
+        try {
+            payload = manager.parse(tokenStr);
+        } catch (ClassNotFoundException e) {
+            throw new AuthenticationException(e);
+        }
+
+        return new JwtToken(payload, tokenStr);
     }
 
     /**
@@ -50,9 +61,11 @@ public class JwtAuthFilter extends AuthenticatingFilter {
         try {
             allowed = executeLogin(request, response); //这里会调用 createToken 进行登录，走JwtToken流程
         } catch (IllegalStateException e) { //not found any token
-            log.error("Token不能为空", e);
+            printError(response, new AuthenticationException("token 不能为空"));
+        } catch (AuthenticationException e) {
+            printError(response, e);
         } catch (Exception e) {
-            log.error("访问错误", e);
+            printError(response, new AuthenticationException("访问错误"));
         }
         return allowed;
 
@@ -65,8 +78,9 @@ public class JwtAuthFilter extends AuthenticatingFilter {
     @Override
     protected boolean onLoginSuccess(AuthenticationToken token, Subject subject, ServletRequest request, ServletResponse response) throws Exception {
         String url = WebUtils.toHttp(request).getRequestURI();
-        log.debug("鉴权成功, token:{}, url:{}", token, url);
-        JwtPayload payload = (JwtPayload) token;
+        log.debug("鉴权成功, token:{}, url:{}", token.getCredentials(), url);
+
+        JwtPayload payload = ((JwtToken) token).getPayload();
         // 刷新token
         if(properties.getJwt().isAutoRefresh() && (payload.getExp() - System.currentTimeMillis()) < properties.getJwt().getRefreshCountdown()) {
             manager.refresh(payload);
@@ -84,13 +98,16 @@ public class JwtAuthFilter extends AuthenticatingFilter {
      */
     @Override
     protected boolean onLoginFailure(AuthenticationToken token, AuthenticationException e, ServletRequest request, ServletResponse response) {
+        printError(response, e);
+        return false;
+    }
+
+    private void printError(ServletResponse response, Exception e) {
         HttpServletResponse httpServletResponse = WebUtils.toHttp(response);
         // 返回401
         httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         // 设置响应码为401或者直接输出消息
-        Result<Boolean> apiResult = Result.fail("jwt 检查错误");
+        Result<Boolean> apiResult = Result.fail("用户名或密码错误");
         HttpKit.printJson(apiResult);
-        return false;
     }
-
 }

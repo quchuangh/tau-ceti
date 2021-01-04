@@ -9,7 +9,7 @@ import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 
 public class Https {
 
-    public static HttpClient syncClient =  sync().setDefaultCharset("UTF-8")
+    public static HttpClient syncClient = sync().setDefaultCharset("UTF-8")
             .setConnectTimeout(10000)
             .setSocketTimeout(10000)
             .setConnectionRequestTimeout(10000)

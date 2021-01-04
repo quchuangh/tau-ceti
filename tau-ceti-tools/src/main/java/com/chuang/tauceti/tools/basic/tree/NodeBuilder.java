@@ -17,7 +17,7 @@ public class NodeBuilder<K extends Serializable, V extends Serializable> {
 
     public NodeBuilder<K, V> index(Iterable<V> resources) {
         for(V obj : resources) {
-            sourceIndex.put(relation.myID(obj), obj);
+            sourceIndex.put(relation.relation(obj).getOne(), obj);
         }
         return this;
     }
@@ -34,11 +34,11 @@ public class NodeBuilder<K extends Serializable, V extends Serializable> {
         indexMap.clear();
         indexMap.putAll(sourceIndex);
         for(V obj : iter) {
-            indexMap.put(relation.myID(obj), obj);
+            indexMap.put(relation.relation(obj).getOne(), obj);
         }
 
         for(V obj : iter) {
-            createNode(relation.myID(obj), null);
+            createNode(relation.relation(obj).getOne(), null);
         }
 
         return rootNode.getChildren();
@@ -72,7 +72,7 @@ public class NodeBuilder<K extends Serializable, V extends Serializable> {
             node.childs.add(child);
         }
 
-        K parentID = relation.parentID(node.source);
+        K parentID = relation.relation(node.source).getTwo();
         if(parentID == null || indexMap.get(parentID) == null) {
             rootNode.addChild(node);
             return;

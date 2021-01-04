@@ -7,7 +7,7 @@ import java.util.UUID;
 @Data
 public class JwtProperties {
 
-    private int refreshStatus = 460;
+    private int refreshStatus = 200;
 
     private String tokenHeader = "Authorization";
 

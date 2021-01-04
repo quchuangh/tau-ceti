@@ -8,9 +8,9 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 
 public class LoginRealm extends AuthorizingRealm {
-    private final IAuthService realmService;
+    private final IShiroService realmService;
 
-    public LoginRealm(IAuthService realmService) {
+    public LoginRealm(IShiroService realmService) {
         this.realmService = realmService;
     }
 

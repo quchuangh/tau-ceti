@@ -11,7 +11,7 @@ public class ServiceGen implements JavaGenerator {
 
     @Override
     public String template() {
-        return "/service/service.java.vm";
+        return "/templates/service/service.java.vm";
     }
 
 }
