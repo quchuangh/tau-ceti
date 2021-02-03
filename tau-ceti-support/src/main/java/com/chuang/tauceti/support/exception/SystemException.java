@@ -21,9 +21,6 @@ public class SystemException extends CodeException {
     }
 
     public static boolean hasSystemException(Throwable e) {
-        if(e instanceof SystemException) {
-            return true;
-        }
         Throwable throwable = e;
         while(null != throwable) {
             throwable = throwable.getCause();

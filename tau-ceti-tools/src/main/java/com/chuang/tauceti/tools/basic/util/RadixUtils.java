@@ -1,4 +1,5 @@
 package com.chuang.tauceti.tools.basic.util;
+
 public class RadixUtils {
 
     public static final int MAX_RADIX = 62;

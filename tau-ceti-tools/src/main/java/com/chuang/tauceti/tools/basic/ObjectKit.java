@@ -1,5 +1,6 @@
 package com.chuang.tauceti.tools.basic;
 
+
 import com.chuang.tauceti.support.exception.BusinessException;
 
 import javax.annotation.Nullable;
@@ -58,8 +59,8 @@ public class ObjectKit {
             oos = new ObjectOutputStream(baos);
             oos.writeObject(object);
             return baos.toByteArray();
-        } catch (Exception ignored) {
-            throw new BusinessException("序列化失败");
+        } catch (Exception e) {
+            throw new BusinessException("序列化失败", e);
         }
     }
 

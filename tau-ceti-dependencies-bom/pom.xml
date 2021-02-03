@@ -43,7 +43,7 @@
         <spring-cloud-starter-alibaba-nacos-config.version>0.9.0.RELEASE</spring-cloud-starter-alibaba-nacos-config.version>
         <dubbo.version>2.7.1</dubbo.version>
         <nacos-client.version>0.6.2</nacos-client.version>
-
+        <littleproxy.version>1.1.2</littleproxy.version>
 
         <commons-io.version>2.4</commons-io.version>
     </properties>
@@ -82,7 +82,7 @@
 
             <dependency>
                 <groupId>com.chuang.tau-ceti</groupId>
-                <artifactId>payment-sdk</artifactId>
+                <artifactId>tau-ceti-payment-sdk</artifactId>
                 <version>${tau-ceti.version}</version>
             </dependency>
 
@@ -247,6 +247,12 @@
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk16</artifactId>
                 <version>${bcprov-jdk16.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.littleshoot</groupId>
+                <artifactId>littleproxy</artifactId>
+                <version>${littleproxy.version}</version>
             </dependency>
 
             <dependency>

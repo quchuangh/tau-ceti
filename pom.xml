@@ -18,6 +18,7 @@
         <module>tau-ceti-rowquery</module>
         <module>tau-ceti-payment-sdk</module>
         <module>tau-ceti-generator</module>
+        <module>tau-ceti-proxy</module>
     </modules>
     <build>
         <!--<pluginManagement>-->

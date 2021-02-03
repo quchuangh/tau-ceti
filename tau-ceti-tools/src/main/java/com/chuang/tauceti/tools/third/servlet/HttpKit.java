@@ -18,6 +18,7 @@ package com.chuang.tauceti.tools.third.servlet;
 import com.alibaba.fastjson.JSONObject;
 import com.chuang.tauceti.support.exception.SystemException;
 import com.chuang.tauceti.tools.basic.RegexKit;
+import com.chuang.tauceti.tools.basic.StringKit;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -109,7 +110,10 @@ public class HttpKit {
     }
 
     public static String getIpAddress(HttpServletRequest request) {
-        String ip = request.getHeader("x-forwarded-for");
+        String ip = request.getHeader("x-real-ip");
+        if(StringKit.isBlank(ip) || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("x-forwarded-for");
+        }
         if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
             ip = request.getHeader("Proxy-Client-IP");
         } else {
