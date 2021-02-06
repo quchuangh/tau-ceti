@@ -142,7 +142,7 @@ public class ShiroJwtConfiguration extends AbstractShiroWebConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public IShiroService authService() {
-        throw new SystemException("IRealmService bean can not found~~");
+        throw new SystemException("IShiroService bean can not found~~");
     }
 
 

@@ -44,9 +44,9 @@ public class AsyncBuilder extends ConfigBuilderProxy<AsyncBuilder, AsyncHttpClie
      */
     private int workThread = 1;
 
-    private int totalConnectPoolMax = 100;
+    private int totalConnectPoolMax = 500;
 
-    private int maxConnectEachHost = 10;
+    private int maxConnectEachHost = 50;
 
     private final Map<HttpRoute, Integer> hostMaxConnect = new HashMap<>();
 

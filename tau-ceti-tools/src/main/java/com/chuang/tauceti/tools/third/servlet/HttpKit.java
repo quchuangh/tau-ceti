@@ -21,6 +21,7 @@ import com.chuang.tauceti.tools.basic.RegexKit;
 import com.chuang.tauceti.tools.basic.StringKit;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import reactor.core.publisher.Mono;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -32,6 +33,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public class HttpKit {
 
@@ -46,6 +48,15 @@ public class HttpKit {
         Optional<Map<String,String>> result = HttpKit.getRequest().map(HttpKit::getRequestParameters);
         return result.orElse(Collections.emptyMap());
 
+    }
+
+    public static <T> Mono<T> toMono(CompletableFuture<T> future) {
+        return Mono.create(sink -> future.thenAccept(sink::success)
+                .exceptionally(throwable -> {               //如果异常，则返回异常结果
+                    sink.error(throwable);
+                    return null;
+                })
+        );
     }
 
     public static boolean isSpider() {
@@ -80,7 +91,7 @@ public class HttpKit {
     }
 
     public static Map<String, String> getRequestParameters(HttpServletRequest request) {
-        Enumeration enums = request.getParameterNames();
+        Enumeration<?> enums = request.getParameterNames();
         HashMap<String, String> values = new HashMap<>();
         while ( enums.hasMoreElements()){
             String paramName = (String) enums.nextElement();
