@@ -713,7 +713,7 @@ public class FileKit {
 	 * @return 如果为文件true
 	 */
 	public static boolean isFile(String path) {
-		return (path != null) && file(path).isDirectory();
+		return (path != null) && file(path).isFile();
 	}
 
 	/**
@@ -723,7 +723,7 @@ public class FileKit {
 	 * @return 如果为文件true
 	 */
 	public static boolean isFile(File file) {
-		return (file != null) && file.isDirectory();
+		return (file != null) && file.isFile();
 	}
 
 	/**
