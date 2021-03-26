@@ -7,8 +7,13 @@ import com.baomidou.mybatisplus.core.toolkit.ReflectionKit;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chuang.tauceti.support.exception.BusinessException;
 import com.chuang.tauceti.tools.basic.collection.CollectionKit;
-import com.chuang.urras.rowquery.filters.RowQuery;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class RowQueryService<M extends BaseMapper<T>, T> extends ServiceImpl<M, T> implements IRowQueryService<T> {
 
@@ -21,7 +26,18 @@ public class RowQueryService<M extends BaseMapper<T>, T> extends ServiceImpl<M, 
 
     @Override
     public IPage<T> pageByRowQuery(RowQuery rowQuery) {
+        QueryWrapper<T> query = toQueryWrapper(rowQuery);
+        return baseMapper.selectPage(new Page<>(rowQuery.getPageNum(), rowQuery.getPageSize()), query);
+    }
+
+    protected QueryWrapper<T> toQueryWrapper(RowQuery rowQuery) {
         QueryWrapper<T> query = new QueryWrapper<>();
+        // 查询字段
+        if(CollectionKit.isNotEmpty(rowQuery.getFields())) {
+            Set<String> fields = Arrays.stream(rowQuery.getFields()).collect(Collectors.toSet());
+            query.select(info -> fields.remove(info.getField().getName()));
+        }
+
         //order by
         CollectionKit.foreach(rowQuery.getSorts(), sort -> {
             if("asc".equalsIgnoreCase(sort.getSort())) {
@@ -34,6 +50,7 @@ public class RowQueryService<M extends BaseMapper<T>, T> extends ServiceImpl<M, 
         // 将所有filter 转化为条件
         CollectionKit.foreach(rowQuery.getFilters(), filter -> filter.handle(query, currentModelClass()));
 
-        return baseMapper.selectPage(new Page<>(rowQuery.getPageNum(), rowQuery.getPageSize()), query);
+        return query;
     }
+
 }

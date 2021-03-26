@@ -3,6 +3,7 @@ package com.chuang.urras.rowquery.filters;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.chuang.urras.rowquery.RowQuery;
 import lombok.Data;
 
 /**
@@ -12,8 +13,8 @@ import lombok.Data;
 public class DateFilter implements RowQuery.Filter {
     private String field;
     private String option;
-    private String dateTo;
-    private String dateFrom;
+    private String valueTo;
+    private String value;
     @Override
     public String getField() {
         return field;
@@ -30,25 +31,25 @@ public class DateFilter implements RowQuery.Filter {
         String _field = StringUtils.camelToUnderline(field);
         switch (option) {
             case "equals":
-                criteria.eq(_field, dateFrom);
+                criteria.eq(_field, value);
                 break;
             case "greaterThan":
-                criteria.gt(_field, dateFrom);
+                criteria.gt(_field, value);
                 break;
             case "greaterThanOrEqual":
-                criteria.ge(_field, dateFrom);
+                criteria.ge(_field, value);
                 break;
             case "lessThan":
-                criteria.lt(_field, dateFrom);
+                criteria.lt(_field, value);
                 break;
             case "lessThanOrEqual":
-                criteria.le(_field, dateFrom);
+                criteria.le(_field, value);
                 break;
             case "notEqual":
-                criteria.ne(_field, dateFrom);
+                criteria.ne(_field, value);
                 break;
             case "inRange":
-                criteria.between(_field, dateFrom, dateTo);
+                criteria.between(_field, value, valueTo);
                 break;
         }
     }

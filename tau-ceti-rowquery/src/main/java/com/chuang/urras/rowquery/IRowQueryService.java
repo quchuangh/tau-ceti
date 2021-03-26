@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chuang.tauceti.tools.basic.collection.CollectionKit;
-import com.chuang.urras.rowquery.filters.RowQuery;
 
 import java.io.Serializable;
 import java.util.*;
@@ -145,4 +144,5 @@ public interface IRowQueryService<T> extends IService<T> {
      * @return 分页数据
      */
     IPage<T> pageByRowQuery(RowQuery rowQuery);
+
 }

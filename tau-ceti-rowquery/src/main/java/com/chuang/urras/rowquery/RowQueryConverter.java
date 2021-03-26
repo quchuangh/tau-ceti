@@ -14,6 +14,7 @@ import org.springframework.http.converter.HttpMessageNotWritableException;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 /**
@@ -23,7 +24,7 @@ public class RowQueryConverter extends AbstractHttpMessageConverter<RowQuery> {
 
     //自定义媒体类型
     public RowQueryConverter(){
-        super(new MediaType("application", "row-query", Charset.forName("UTF-8")));
+        super(new MediaType("application", "row-query", StandardCharsets.UTF_8));
     }
 
     @Override
@@ -36,11 +37,10 @@ public class RowQueryConverter extends AbstractHttpMessageConverter<RowQuery> {
         String str = IOKit.read(inputMessage.getBody(), "UTF-8");
         JSONObject json = JSONObject.parseObject(str);
 
-
         RowQuery rq = new RowQuery();
 
+        rq.setPageNum(json.getInteger("pageNum"));
         rq.setPageSize(json.getInteger("pageSize"));
-        rq.setPageNum(json.getInteger("startRow") / rq.getPageSize() + 1);
 
 
         if(json.containsKey("sorts")) {

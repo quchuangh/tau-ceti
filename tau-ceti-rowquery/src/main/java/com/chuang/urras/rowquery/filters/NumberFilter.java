@@ -3,6 +3,7 @@ package com.chuang.urras.rowquery.filters;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.chuang.urras.rowquery.RowQuery;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -14,8 +15,8 @@ import java.math.BigDecimal;
 public class NumberFilter implements RowQuery.Filter {
     private String field;
     private String option;
-    private BigDecimal number;
-    private BigDecimal numberTo;
+    private BigDecimal value;
+    private BigDecimal valueTo;
     @Override
     public String getField() {
         return field;
@@ -32,25 +33,25 @@ public class NumberFilter implements RowQuery.Filter {
         String _field = StringUtils.camelToUnderline(field);
         switch (option) {
             case "equals":
-                criteria.eq(_field, number);
+                criteria.eq(_field, value);
                 break;
             case "notEqual":
-                criteria.ne(_field, number);
+                criteria.ne(_field, value);
                 break;
             case "lessThan":
-                criteria.lt(_field, number);
+                criteria.lt(_field, value);
                 break;
             case "lessThanOrEqual":
-                criteria.le(_field, number);
+                criteria.le(_field, value);
                 break;
             case "greaterThan":
-                criteria.gt(_field, number);
+                criteria.gt(_field, value);
                 break;
             case "greaterThanOrEqual":
-                criteria.ge(_field, number);
+                criteria.ge(_field, value);
                 break;
             case "inRange":
-                criteria.between(_field, number, numberTo);
+                criteria.between(_field, value, valueTo);
                 break;
 
         }
