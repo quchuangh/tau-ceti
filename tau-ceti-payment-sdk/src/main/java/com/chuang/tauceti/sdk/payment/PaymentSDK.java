@@ -197,5 +197,15 @@ public class PaymentSDK {
         return platform.query(info, config);
     }
 
+    public CompletableFuture<Result<QueryInfo>> queryPlatformInfo(PaymentPlatformConfig config) {
+        IPaymentPlatform platform = platforms.get(config.getPlatform());
+        if(null == platform) {
+            logger.warn("can not find {}, all platform codes are {}", config.getPlatform(), platforms);
+            throw new BusinessException("sdk 不支持 [{}] 平台", config.getPlatform());
+        }
+
+        return platform.queryPlatformInfo(config);
+    }
+
 
 }

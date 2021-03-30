@@ -101,7 +101,7 @@ public interface IPaymentPlatform {
     Result<DepositCallbackInfo> depositCallback(Map<String, String> callbackParams, String body, boolean front, PaymentPlatformConfig config);
 
     default CompletableFuture<Result<WithdrawInfo>> withdraw(WithdrawRequest request, PaymentPlatformConfig config) {
-        throw new BusinessException("withdraw not support");
+        return FutureKit.error(new BusinessException("withdraw not support"));
     }
 
     default Result<WithdrawCallbackInfo> withdrawCallback(Map<String, String> callbackParams, String body, PaymentPlatformConfig config) {
@@ -119,5 +119,9 @@ public interface IPaymentPlatform {
 
     default boolean isSupport(PaymentType type, @Nullable Bank bank) {
         return paymentTypeCodeMapping().containsKey(type) && (null != bank && bankCodeMapping().containsKey(bank));
+    }
+
+    default CompletableFuture<Result<QueryInfo>> queryPlatformInfo(PaymentPlatformConfig config) {
+        return FutureKit.error(new BusinessException("query platform info not support"));
     }
 }
