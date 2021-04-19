@@ -766,7 +766,7 @@ public class FileKit {
 	 * @param lastModifyTime 上次的改动时间
 	 * @return 是否被改动
 	 */
-	public static boolean isModifed(File file, long lastModifyTime) {
+	public static boolean isModified(File file, long lastModifyTime) {
 		if (null == file || !file.exists()) {
 			return true;
 		}

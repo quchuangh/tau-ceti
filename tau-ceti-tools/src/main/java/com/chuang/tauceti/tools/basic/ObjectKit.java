@@ -104,4 +104,12 @@ public class ObjectKit {
                 obj instanceof Number;
     }
 
+    public static boolean isArray(Object obj) {
+        return obj.getClass().isArray();
+    }
+
+    public static boolean isArray(Class<?> clazz) {
+        return clazz.isArray();
+    }
+
 }

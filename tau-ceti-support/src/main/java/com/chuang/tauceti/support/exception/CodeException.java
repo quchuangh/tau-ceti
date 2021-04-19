@@ -22,7 +22,7 @@ public class CodeException extends RuntimeException {
 
 
     public CodeException(int code, String pattern, Object... args){
-        super(MessageFormat.format(pattern, args));
+        super(args.length == 0 ? pattern : MessageFormat.format(pattern, args));
         this.code = code;
     }
 

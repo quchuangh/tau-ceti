@@ -5,9 +5,14 @@ import com.chuang.tauceti.tools.basic.StringKit;
 import com.chuang.tauceti.tools.basic.collection.CollectionKit;
 
 import java.io.File;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -282,5 +287,73 @@ public class ClassKit {
 			classLoader = ClassKit.class.getClassLoader();
 		}
 		return classLoader;
+	}
+
+	public static List<Field> findFieldList(Class<?> clazz, boolean and, Class<? extends Annotation>... ann) {
+		List<Field> list = new ArrayList<>();
+		Class<?> superClass = clazz.getSuperclass();
+		if(superClass != Object.class) {
+			list.addAll(findFieldList(superClass, and, ann));
+		}
+
+		Field[] fds = clazz.getDeclaredFields();
+		for(Field f : fds) {
+			if(hasAnnotation(f, and, ann)) {
+				list.add(f);
+			}
+		}
+		return list;
+	}
+	/**
+	 * 检查是Class 是否存在指定的超类、接口、或注解
+	 * <code>
+	 *     String[] args = new String[] {};
+	 *     checkHasAnnOrSuperClass(args, java.concurrent.reflect.Array.class);
+	 * </code>
+	 * 结果为 false, 检查是否为数组，请调用 {@link com.chuang.tauceti.tools.basic.ObjectKit#isArray(Object)}
+	 * @param clazz
+	 * @param c
+	 * @return
+	 */
+	public static boolean checkHasAnnOrSuperClass(Class<?> clazz, Class<?> c) {
+		if(c.isAnnotation()) {
+			return clazz.getAnnotation((Class<Annotation>)c) != null;
+		} else {
+			return c.isAssignableFrom(clazz);
+		}
+	}
+	/**
+	 * 是否包含多个指定的超类或者注解
+	 */
+	public static boolean hasSuperClassWithAnnotation(Class<?> clazz, boolean and, Class<?>... classes) {
+		for(Class<?> c : classes) {
+			if(and && (!checkHasAnnOrSuperClass(clazz, c))) {
+				return false;
+			}
+
+			if(!and && (checkHasAnnOrSuperClass(clazz, c))) {
+				return true;
+			}
+		}
+
+		return and;
+	}
+
+	/**
+	 * 验证是否包含指定的注解
+	 */
+	public static boolean hasAnnotation(AnnotatedElement ae, boolean and, Class<? extends Annotation>... annotations) {
+
+		for(Class<? extends Annotation> ann : annotations) {
+			if(and && null == ae.getAnnotation(ann)) {
+				return false;
+			}
+
+			if(!and && null != ae.getAnnotation(ann)) {
+				return true;
+			}
+		}
+
+		return and;
 	}
 }

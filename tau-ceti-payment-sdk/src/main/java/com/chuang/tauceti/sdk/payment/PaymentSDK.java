@@ -3,6 +3,7 @@ package com.chuang.tauceti.sdk.payment;
 import com.chuang.tauceti.sdk.payment.deposit.DepositCallbackInfo;
 import com.chuang.tauceti.sdk.payment.deposit.DepositInfo;
 import com.chuang.tauceti.sdk.payment.deposit.DepositRequest;
+import com.chuang.tauceti.sdk.payment.query.PlatformInfo;
 import com.chuang.tauceti.sdk.payment.query.QueryInfo;
 import com.chuang.tauceti.sdk.payment.query.QueryRequest;
 import com.chuang.tauceti.sdk.payment.withdraw.WithdrawCallbackInfo;
@@ -197,7 +198,7 @@ public class PaymentSDK {
         return platform.query(info, config);
     }
 
-    public CompletableFuture<Result<QueryInfo>> queryPlatformInfo(PaymentPlatformConfig config) {
+    public CompletableFuture<Result<PlatformInfo>> queryPlatformInfo(PaymentPlatformConfig config) {
         IPaymentPlatform platform = platforms.get(config.getPlatform());
         if(null == platform) {
             logger.warn("can not find {}, all platform codes are {}", config.getPlatform(), platforms);

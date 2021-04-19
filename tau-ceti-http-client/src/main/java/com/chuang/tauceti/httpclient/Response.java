@@ -82,7 +82,7 @@ public class Response {
             HttpEntity entity = response.getEntity();
             if (entity != null) {
                 // gzip 处理
-                Header encode = response.getFirstHeader(HttpHeaders.CONTENT_ENCODING);
+                Header encode = entity.getContentEncoding();
                 if(null != encode && !Tools.isBlank(encode.getValue()) && encode.getValue().toLowerCase().contains("gzip")) {
                     entity = new GzipDecompressingEntity(entity);
                 }

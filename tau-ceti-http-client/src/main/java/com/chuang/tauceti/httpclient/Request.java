@@ -2,19 +2,13 @@ package com.chuang.tauceti.httpclient;
 
 import com.chuang.tauceti.httpclient.async.AsyncHttpClient;
 import com.chuang.tauceti.httpclient.sync.HttpClient;
-import com.chuang.tauceti.support.exception.BusinessException;
 import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
 import org.apache.http.annotation.Contract;
 import org.apache.http.annotation.ThreadingBehavior;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.*;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.message.BasicNameValuePair;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
@@ -180,7 +174,7 @@ public class Request implements Supplier<HttpRequestBase> {
         private String body;
         private String url;
         private String charset;
-        private MyCoverableConfigBuilder config = new MyCoverableConfigBuilder(this);
+        private MyCovertConfigBuilder config = new MyCovertConfigBuilder(this);
 
         public Builder() {
             headers = new HashMap<>();
@@ -210,7 +204,7 @@ public class Request implements Supplier<HttpRequestBase> {
             return this;
         }
         public Builder header(Map<String, String> headers){
-            headers.putAll(headers);
+            this.headers.putAll(headers);
             return this;
         }
 
@@ -276,7 +270,7 @@ public class Request implements Supplier<HttpRequestBase> {
             return this;
         }
 
-        public MyCoverableConfigBuilder config() {
+        public MyCovertConfigBuilder config() {
             return this.config;
         }
 
@@ -285,11 +279,11 @@ public class Request implements Supplier<HttpRequestBase> {
         }
     }
 
-    public static class MyCoverableConfigBuilder extends CoverableRequestConfig.Builder<MyCoverableConfigBuilder> {
+    public static class MyCovertConfigBuilder extends CoverableRequestConfig.Builder<MyCovertConfigBuilder> {
 
         private final Builder builder;
 
-        public MyCoverableConfigBuilder(Builder builder) {
+        public MyCovertConfigBuilder(Builder builder) {
             this.builder = builder;
         }
 

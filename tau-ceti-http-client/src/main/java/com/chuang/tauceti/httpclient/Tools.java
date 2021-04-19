@@ -133,7 +133,9 @@ public class Tools {
 			if(requestBase instanceof HttpEntityEnclosingRequest) {
 				((HttpEntityEnclosingRequest)requestBase).setEntity(entity);
 			} else {
-				requestBase.setURI(URI.create(requestBase.getURI().toString() + "?" + EntityUtils.toString(entity)));
+				String uri = requestBase.getURI().toString();
+				String concat = uri.contains("?") ? "&" : "?";
+				requestBase.setURI(URI.create(uri + concat + EntityUtils.toString(entity)));
 			}
 		}
 	}

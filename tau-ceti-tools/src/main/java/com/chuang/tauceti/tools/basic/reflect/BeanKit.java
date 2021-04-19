@@ -119,7 +119,26 @@ public class BeanKit {
         });
     }
 
+    public static Optional<Object> getFieldValue(Object obj, Field f) {
+        boolean accessible = f.isAccessible();
+        f.setAccessible(true);
+        try {
+            return Optional.ofNullable(f.get(obj));
+        } catch (IllegalAccessException e) {
+            return Optional.empty();
+        } finally {
+            f.setAccessible(accessible);
+        }
+    }
 
+    public static Optional<Object> getFieldValue(Object obj, String field) {
+
+        try {
+            return getFieldValue(obj, obj.getClass().getDeclaredField(field));
+        } catch (NoSuchFieldException e) {
+            return Optional.empty();
+        }
+    }
 
     /**
      * 使用Map填充Bean对象

@@ -4,6 +4,7 @@ import com.chuang.tauceti.sdk.payment.deposit.DepositCallbackInfo;
 import com.chuang.tauceti.sdk.payment.deposit.DepositInfo;
 import com.chuang.tauceti.sdk.payment.deposit.DepositRequest;
 import com.chuang.tauceti.sdk.payment.deposit.GenFormDepositInfo;
+import com.chuang.tauceti.sdk.payment.query.PlatformInfo;
 import com.chuang.tauceti.sdk.payment.query.QueryInfo;
 import com.chuang.tauceti.sdk.payment.query.QueryRequest;
 import com.chuang.tauceti.sdk.payment.withdraw.WithdrawCallbackInfo;
@@ -121,7 +122,7 @@ public interface IPaymentPlatform {
         return paymentTypeCodeMapping().containsKey(type) && (null != bank && bankCodeMapping().containsKey(bank));
     }
 
-    default CompletableFuture<Result<QueryInfo>> queryPlatformInfo(PaymentPlatformConfig config) {
+    default CompletableFuture<Result<PlatformInfo>> queryPlatformInfo(PaymentPlatformConfig config) {
         return FutureKit.error(new BusinessException("query platform info not support"));
     }
 }
