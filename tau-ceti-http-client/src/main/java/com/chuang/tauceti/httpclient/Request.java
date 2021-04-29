@@ -117,7 +117,7 @@ public class Request implements Supplier<HttpRequestBase> {
 
     public Response execute() throws IOException {
 
-        return execute(Https.syncClient);
+        return execute(Https.sync());
     }
 
     public String executeAsString() throws IOException {
@@ -126,7 +126,7 @@ public class Request implements Supplier<HttpRequestBase> {
 
 
     public CompletableFuture<Response> asyncExecute() {
-        return execute(Https.asyncClient);
+        return execute(Https.async());
     }
 
     public CompletableFuture<String> asyncExecuteAsString() {

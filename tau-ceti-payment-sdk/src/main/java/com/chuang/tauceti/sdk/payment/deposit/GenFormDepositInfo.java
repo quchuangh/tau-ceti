@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
 public abstract class GenFormDepositInfo extends DepositInfo {
 
     public static AsyncHttpClient allow302AsyncHttpClient = Https
-            .async(HttpAsyncClientBuilder.create().setRedirectStrategy(new LaxRedirectStrategy()))
+            .asyncBuilder(HttpAsyncClientBuilder.create().setRedirectStrategy(new LaxRedirectStrategy()))
             .setConnectTimeout(10000)
             .setSocketTimeout(10000)
             .setConnectionRequestTimeout(10000)

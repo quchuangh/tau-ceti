@@ -9,34 +9,56 @@ import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 
 public class Https {
 
-    public static HttpClient syncClient = sync().setDefaultCharset("UTF-8")
+    private static HttpClient defaultSyncClient = syncBuilder().setDefaultCharset("UTF-8")
             .setConnectTimeout(10000)
             .setSocketTimeout(10000)
             .setConnectionRequestTimeout(10000)
             .trustAll()
             .build();
-    public static AsyncHttpClient asyncClient =  async().setDefaultCharset("UTF-8")
-            .workThreadFull()
-            .setConnectTimeout(10000)
-            .setSocketTimeout(10000)
-            .setConnectionRequestTimeout(10000)
-            .trustAll()
-            .build()
-            .init();
+    private static AsyncHttpClient defaultAsyncClient;
 
-    public static AsyncBuilder async() {
+    public static synchronized AsyncHttpClient async() {
+        if (null == defaultSyncClient) {
+            defaultAsyncClient = asyncBuilder().setDefaultCharset("UTF-8")
+                    .workThreadFull()
+                    .setConnectTimeout(10000)
+                    .setSocketTimeout(10000)
+                    .setConnectionRequestTimeout(10000)
+                    .trustAll()
+                    .build()
+                    .init();
+        }
+        return defaultAsyncClient;
+    }
+
+    public static synchronized void setDefaultAsyncClient(AsyncHttpClient client) {
+        if (null != defaultAsyncClient) {
+            defaultAsyncClient.shutdown();
+        }
+        defaultAsyncClient = client;
+    }
+
+    public static synchronized void setDefaultSyncClient(HttpClient client) {
+        defaultSyncClient = client;
+    }
+
+    public static HttpClient sync() {
+        return defaultSyncClient;
+    }
+
+    public static AsyncBuilder asyncBuilder() {
         return new AsyncBuilder();
     }
 
-    public static SyncBuilder sync() {
+    public static SyncBuilder syncBuilder() {
         return new SyncBuilder();
     }
 
-    public static AsyncBuilder async(HttpAsyncClientBuilder builder) {
+    public static AsyncBuilder asyncBuilder(HttpAsyncClientBuilder builder) {
         return new AsyncBuilder(builder);
     }
 
-    public static SyncBuilder async(HttpClientBuilder builder) {
+    public static SyncBuilder asyncBuilder(HttpClientBuilder builder) {
         return new SyncBuilder(builder);
     }
 }
