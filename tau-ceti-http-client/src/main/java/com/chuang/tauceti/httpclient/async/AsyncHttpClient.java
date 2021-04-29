@@ -1,5 +1,6 @@
 package com.chuang.tauceti.httpclient.async;
 
+import com.chuang.tauceti.httpclient.HttpMethod;
 import com.chuang.tauceti.httpclient.Request;
 import com.chuang.tauceti.httpclient.Response;
 import com.chuang.tauceti.httpclient.Tools;
@@ -18,7 +19,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
@@ -67,11 +71,11 @@ public class AsyncHttpClient {
     }
 
     public CompletableFuture<String> doGet(String url) {
-        return doGet(url, null);
+        return doGet(url, Collections.emptyMap());
     }
 
     public CompletableFuture<String> doPost(String url) {
-        return doPost(url, null);
+        return doPost(url, Collections.emptyMap());
     }
 
     public CompletableFuture<String> doGet(String url, Map<String, String> params) {
@@ -90,6 +94,51 @@ public class AsyncHttpClient {
         return doGet(url, params, null, null,charset, null, -1, -1).thenApply(Response::asString);
     }
 
+    private Optional<Request> asRequest(String url,
+                                        HttpMethod method,
+                                        Map<String, String> params,
+                                        String body,
+                                        Map<String, String> heads,
+                                        String charset,
+                                        HttpHost proxy,
+                                        Integer connTimeout,
+                                        Integer readTimeout) {
+        if(url == null || method == null) {
+            return Optional.empty();
+        }
+
+        Request.Builder request = Request.newBuilder().url(url).method(method);
+        Request.MyCovertConfigBuilder config = request.config();
+
+        if (null != params && !params.isEmpty()) {
+            request.parameter(params);
+        }
+        if (null != body && !body.isEmpty()) {
+            request.body(body);
+        }
+        if (null != heads && !heads.isEmpty()) {
+            request.header(heads);
+        }
+        if (null != charset && !charset.isEmpty()) {
+            request.charset(charset);
+        }
+
+        if (null != proxy) {
+            config.setProxy(proxy);
+        }
+        if (null != connTimeout) {
+            config.setConnectTimeout(connTimeout)
+                    .setConnectionRequestTimeout(connTimeout);
+        }
+        if (null != readTimeout) {
+            config.setSocketTimeout(readTimeout);
+        }
+
+
+        return Optional.of(request.build());
+
+    }
+
     /**
      * HTTP Get 获取内容
      *
@@ -100,24 +149,9 @@ public class AsyncHttpClient {
      * @return 页面内容
      */
     public CompletableFuture<Response> doGet(String url, Map<String, String> params, Map<String, String> heads, HttpContext context, String charset, HttpHost proxy, int connTimeout, int readTimeout) {
-
-        if (Tools.isBlank(url)) {
-            return CompletableFuture.completedFuture(null);
-        }
-
-        Request request = Request.Get(url)
-                .parameter(params)
-                .header(heads)
-                .charset(charset)
-                .config()
-                .setProxy(proxy)
-                .setConnectTimeout(connTimeout)
-                .setConnectionRequestTimeout(connTimeout)
-                .setSocketTimeout(readTimeout)
-                .done()
-                .build();
-        return exec(request, context);
-
+        return asRequest(url, HttpMethod.GET, params, null, heads, charset, proxy, connTimeout, readTimeout)
+                .map(request -> exec(request, context))
+                .orElse(CompletableFuture.completedFuture(null));
     }
 
 
@@ -132,21 +166,9 @@ public class AsyncHttpClient {
      */
     public CompletableFuture<Response> doPost(String url, Map<String, String> params, HttpContext context, Map<String, String> heads, String charset, HttpHost proxy) {
 
-        if (Tools.isBlank(url)) {
-            return CompletableFuture.completedFuture(null);
-        }
-        Request request = Request.Post(url)
-                .parameter(params)
-                .header(heads)
-                .charset(charset)
-                .config()
-                .setProxy(proxy)
-                .setConnectTimeout(-1)
-                .setConnectionRequestTimeout(-1)
-                .setSocketTimeout(-1)
-                .done()
-                .build();
-        return exec(request, context);
+        return asRequest(url, HttpMethod.POST, params, null, heads, charset, proxy, null, null)
+                .map(request -> exec(request, context))
+                .orElse(CompletableFuture.completedFuture(null));
     }
 
 
@@ -161,21 +183,9 @@ public class AsyncHttpClient {
      */
     public CompletableFuture<Response> doPost(String url, String requestData, HttpContext context, Map<String, String> heads, String charset, HttpHost proxy) {
 
-        if (Tools.isBlank(url)) {
-            return CompletableFuture.completedFuture(null);
-        }
-        Request request = Request.Post(url)
-                .body(requestData)
-                .header(heads)
-                .charset(charset)
-                .config()
-                .setProxy(proxy)
-                .setConnectTimeout(-1)
-                .setConnectionRequestTimeout(-1)
-                .setSocketTimeout(-1)
-                .done()
-                .build();
-        return exec(request, context);
+        return asRequest(url, HttpMethod.POST, null, requestData, heads, charset, proxy, null, null)
+                .map(request -> exec(request, context))
+                .orElse(CompletableFuture.completedFuture(null));
     }
 
 
@@ -188,51 +198,24 @@ public class AsyncHttpClient {
      * @return 页面内容
      */
     public CompletableFuture<Response> doPut(String url, String requestData, HttpContext context, Map<String,String> heads, String charset, HttpHost proxy) {
-
-        if (Tools.isBlank(url)) {
-            return CompletableFuture.completedFuture(null);
-        }
-
-        Request request = Request.Put(url)
-                .body(requestData)
-                .header(heads)
-                .charset(charset)
-                .config()
-                .setProxy(proxy)
-                .setConnectTimeout(-1)
-                .setConnectionRequestTimeout(-1)
-                .setSocketTimeout(-1)
-                .done()
-                .build();
-
-        return exec(request, context);
+        return asRequest(url, HttpMethod.POST, null, requestData, heads, charset, proxy, null, null)
+                .map(request -> exec(request, context))
+                .orElse(CompletableFuture.completedFuture(null));
     }
 
     /**
      * HTTP put 获取内容
      *
      * @param url     请求的url地址 ?之前的地址
-     * @param parmas  请求体
+     * @param params  请求体
      * @param charset 编码格式
      * @return 页面内容
      */
-    public CompletableFuture<Response> doPut(String url, Map<String, String> parmas, HttpContext context, Map<String,String> heads, String charset, HttpHost proxy) {
+    public CompletableFuture<Response> doPut(String url, Map<String, String> params, HttpContext context, Map<String,String> heads, String charset, HttpHost proxy) {
 
-        if (Tools.isBlank(url)) {
-            return CompletableFuture.completedFuture(null);
-        }
-        Request request = Request.Put(url)
-                .parameter(parmas)
-                .header(heads)
-                .charset(charset)
-                .config()
-                .setProxy(proxy)
-                .setConnectTimeout(-1)
-                .setConnectionRequestTimeout(-1)
-                .setSocketTimeout(-1)
-                .done()
-                .build();
-        return exec(request, context);
+        return asRequest(url, HttpMethod.PUT, params, null, heads, charset, proxy, null, null)
+                .map(request -> exec(request, context))
+                .orElse(CompletableFuture.completedFuture(null));
     }
 
 
