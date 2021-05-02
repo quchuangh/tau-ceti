@@ -8,10 +8,10 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 
 public class LoginRealm extends AuthorizingRealm {
-    private final IShiroService realmService;
+    private final IShiroService shiroService;
 
-    public LoginRealm(IShiroService realmService) {
-        this.realmService = realmService;
+    public LoginRealm(IShiroService shiroService) {
+        this.shiroService = shiroService;
     }
 
     @Override
@@ -25,11 +25,11 @@ public class LoginRealm extends AuthorizingRealm {
 
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-        return realmService.getAuthorizationInfo(principals);
+        return shiroService.getAuthorizationInfo(principals);
     }
 
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-        return realmService.getAuthenticationInfoByLoginToken((LoginToken) token, getName());
+        return shiroService.getAuthenticationInfoByLoginToken((LoginToken) token, getName());
     }
 }

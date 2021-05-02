@@ -10,10 +10,10 @@ import org.apache.shiro.subject.PrincipalCollection;
 
 public class JwtRealm extends AuthorizingRealm {
 
-    private final IShiroService authService;
+    private final IShiroService shiroService;
 
-    public JwtRealm(IShiroService authService) {
-        this.authService = authService;
+    public JwtRealm(IShiroService shiroService) {
+        this.shiroService = shiroService;
     }
 
     @Override
@@ -27,7 +27,7 @@ public class JwtRealm extends AuthorizingRealm {
 
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-        return authService.getAuthorizationInfo(principals);
+        return shiroService.getAuthorizationInfo(principals);
     }
 
     @Override

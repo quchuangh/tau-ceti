@@ -2,6 +2,7 @@ package com.chuang.tauceti.tools.basic;
 
 
 import com.chuang.tauceti.support.exception.BusinessException;
+import com.chuang.tauceti.tools.basic.reflect.BeanKit;
 
 import javax.annotation.Nullable;
 import java.io.ByteArrayInputStream;
@@ -10,7 +11,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 public class ObjectKit {
     /**
@@ -110,6 +113,23 @@ public class ObjectKit {
 
     public static boolean isArray(Class<?> clazz) {
         return clazz.isArray();
+    }
+
+    public static Optional<Object> getValue(Object obj, String field) {
+        if(obj instanceof Map) {
+            return Optional.ofNullable(((Map<?, ?>) obj).get(field));
+        } else {
+            return BeanKit.getFieldValue(obj, field);
+        }
+    }
+
+    public static boolean setValue(Object obj, String field, Object value) {
+        if(obj instanceof Map) {
+            ((Map<Object, Object>) obj).put(field, value);
+            return true;
+        } else {
+            return BeanKit.setProperty(obj, field, value);
+        }
     }
 
 }

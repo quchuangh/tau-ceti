@@ -19,7 +19,7 @@ public class JwtToken implements AuthenticationToken {
 
     @Override
     public Object getPrincipal() {
-        return payload;
+        return payload.getBody();
     }
 
     @Override

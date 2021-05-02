@@ -18,7 +18,7 @@ public class Https {
     private static AsyncHttpClient defaultAsyncClient;
 
     public static synchronized AsyncHttpClient async() {
-        if (null == defaultSyncClient) {
+        if (null == defaultAsyncClient) {
             defaultAsyncClient = asyncBuilder().setDefaultCharset("UTF-8")
                     .workThreadFull()
                     .setConnectTimeout(10000)

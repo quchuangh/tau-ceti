@@ -109,14 +109,17 @@ public class BeanKit {
         return Optional.empty();
     }
 
-    public static void setProperty(Object obj, String fieldName, Object value) {
-        getPropertyDescriptor(obj.getClass(), fieldName).ifPresent(property -> {
+    public static boolean setProperty(Object obj, String fieldName, Object value) {
+        return getPropertyDescriptor(obj.getClass(), fieldName).map(property -> {
             try {
                 property.getWriteMethod().invoke(obj, ConvertKit.parse(property.getPropertyType(), value));
+                return true;
             } catch (Exception e) {
                 e.printStackTrace();
+                return false;
             }
-        });
+        }).orElse(false);
+
     }
 
     public static Optional<Object> getFieldValue(Object obj, Field f) {
@@ -132,7 +135,6 @@ public class BeanKit {
     }
 
     public static Optional<Object> getFieldValue(Object obj, String field) {
-
         try {
             return getFieldValue(obj, obj.getClass().getDeclaredField(field));
         } catch (NoSuchFieldException e) {

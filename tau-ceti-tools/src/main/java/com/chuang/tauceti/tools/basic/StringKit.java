@@ -829,6 +829,20 @@ public class StringKit {
 		return new String(result);
 	}
 
+	public static String halfHidden(String str) {
+		if(str.length() < 3) {
+			return str;
+		}
+
+		int half = str.length() / 2;
+		int se = half % 2 == 0 ? half / 2 : (half / 2 + 1);
+		int center = str.length() - (se * 2);
+
+		String star = StringKit.repeat('*', center);
+
+		return str.substring(0, se) + star + str.substring(se + center);
+	}
+
 	/**
 	 * 重复某个字符串
 	 * 
