@@ -33,6 +33,6 @@ public class JwtRealm extends AuthorizingRealm {
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
         JwtToken jwtToken = (JwtToken) token;
-        return new SimpleAuthenticationInfo(jwtToken.getPayload(), token.getCredentials(), getName());
+        return new SimpleAuthenticationInfo(jwtToken.getPrincipal(), token.getCredentials(), getName());
     }
 }

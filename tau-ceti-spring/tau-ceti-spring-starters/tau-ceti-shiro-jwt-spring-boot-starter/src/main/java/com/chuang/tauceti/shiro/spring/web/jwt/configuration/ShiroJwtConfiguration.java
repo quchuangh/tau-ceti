@@ -24,12 +24,14 @@ import org.apache.shiro.spring.web.config.ShiroFilterChainDefinition;
 import org.apache.shiro.web.filter.mgt.DefaultFilter;
 import org.apache.shiro.web.mgt.DefaultWebSessionStorageEvaluator;
 import org.apache.shiro.web.servlet.AbstractShiroFilter;
+import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 
 import javax.annotation.Resource;
 import javax.servlet.DispatcherType;
@@ -226,8 +228,17 @@ public class ShiroJwtConfiguration extends AbstractShiroWebConfiguration {
             });
         }
         filterChainDefinitionMap.put(shiroProperties.getLoginUrl(), "auth");
-        filterChainDefinitionMap.put("/**", "jwt");
+        filterChainDefinitionMap.put("/**", "jwt, user");
         return filterChainDefinitionMap;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @DependsOn("lifecycleBeanPostProcessor")
+    public DefaultAdvisorAutoProxyCreator defaultAdvisorAutoProxyCreator() {
+        DefaultAdvisorAutoProxyCreator daap = new DefaultAdvisorAutoProxyCreator();
+        daap.setProxyTargetClass(true); // 不加这个的话，当遇到@RequireRole 之类的注解会404
+        return daap;
     }
 
 

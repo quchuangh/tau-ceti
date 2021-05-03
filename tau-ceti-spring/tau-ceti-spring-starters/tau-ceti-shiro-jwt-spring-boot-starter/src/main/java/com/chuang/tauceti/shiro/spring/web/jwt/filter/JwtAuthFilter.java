@@ -21,6 +21,9 @@ import javax.servlet.http.HttpServletResponse;
 @Slf4j
 public class JwtAuthFilter extends AuthenticatingFilter {
 
+    public static final String JWT_PAYLOAD_REQUEST_ATTR = "__JWT_PAYLOAD__";
+    public static final String JWT_STR_REQUEST_ATTR = "__JWT_TOKEN_STR__";
+
     private final JwtManager manager;
     private final ShiroProperties properties;
 
@@ -44,6 +47,8 @@ public class JwtAuthFilter extends AuthenticatingFilter {
             throw new AuthenticationException(e);
         }
 
+        servletRequest.setAttribute(JWT_PAYLOAD_REQUEST_ATTR, payload);
+        servletRequest.setAttribute(JWT_STR_REQUEST_ATTR, tokenStr);
         return new JwtToken(payload, tokenStr);
     }
 
