@@ -72,30 +72,28 @@ public interface GenType {
             return 0x60000;
         }
     };
-    GenType VO = new GenType() {
-        @Override
-        public String name() {
-            return "VO";
-        }
-
-        @Override
-        public int order() {
-            return 0x70000;
-        }
-    };
-    GenType QO = new GenType() {
-        @Override
-        public String name() {
-            return "QO";
-        }
-
-        @Override
-        public int order() {
-            return 0x80000;
-        }
-    };
 
 
     String name();
+
+    /**
+     * 排序，当出现两个相同的GenType生成器时，order决定了谁先执行。
+     * 比如 controller执行时可能需要用到entity模板中产生的共享变量，则controller应该在entity后面执行。
+     * 数字越小，越先执行。
+     */
     int order();
+
+    static GenType parse(String name, int order) {
+        return new GenType() {
+            @Override
+            public String name() {
+                return name;
+            }
+
+            @Override
+            public int order() {
+                return order;
+            }
+        };
+    }
 }

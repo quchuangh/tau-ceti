@@ -58,4 +58,18 @@ public interface Generator extends Comparable<Generator>, ContextInitializer {
      */
     String outputFile(GenConfig config, TableInfo info);
 
+    default String tableNameWithoutPrefix(GenConfig config, TableInfo info) {
+        String[] prefix = config.getStrategy().getTablePrefix();
+        String tableName = info.getName();
+        if(prefix != null && prefix.length > 0) {
+            for(String pre: prefix) {
+                if(tableName.startsWith(pre)) {
+                    tableName = tableName.substring(pre.length());
+                }
+            }
+        }
+
+        return tableName;
+    }
+
 }

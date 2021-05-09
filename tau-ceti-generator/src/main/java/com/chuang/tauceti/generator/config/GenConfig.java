@@ -18,6 +18,7 @@ import com.chuang.tauceti.tools.basic.StringKit;
 import com.chuang.tauceti.tools.basic.collection.CollectionKit;
 import com.chuang.tauceti.tools.basic.collection.DoubleKeyMap;
 import com.chuang.tauceti.tools.basic.collection.UnmodifiableDoubleKeyMap;
+import com.chuang.tauceti.tools.basic.reflect.ClassKit;
 import com.chuang.tauceti.tools.basic.reflect.ClassSearch;
 import com.chuang.urras.rowquery.IRowQueryService;
 import com.chuang.urras.rowquery.RowQueryService;
@@ -80,7 +81,7 @@ public class GenConfig {
 
     private final INameConvert nameConvert;
 
-    private final boolean mvn;
+    private final boolean mvn; //是否为maven工程
     private final List<Generator> generators;
 
 
@@ -226,11 +227,20 @@ public class GenConfig {
             return this;
         }
 
+        /**
+         * 简易的名字转换器,根据gentype返回一个name
+         * name可以用%s占位符来表示首字母大写的驼峰名称，如t_user_info表，t设置为前缀的话，则%s表示 UserInfo
+         * 如果名称转换器无法满足需要，可以通过重写{@link Generator#initTableMap(GenConfig, TableInfo)} 在里面添加变量的方式来设置名字。
+         */
         public Builder nameConvert(INameConvert nameConvert) {
             this.nameConvert = nameConvert;
             return this;
         }
 
+        /**
+         * 简易的名字转换器，name可以用%s占位符来表示首字母大写的驼峰名称，如t_user_info表，t设置为前缀的话，则%s表示 UserInfo
+         * 如果名称转换器无法满足需要，可以通过重写{@link Generator#initTableMap(GenConfig, TableInfo)} 在里面添加变量的方式来设置名字。
+         */
         public Builder nameConvert(GenType type, String name) {
             this.typeNameMap.put(type, name);
             return this;
@@ -295,24 +305,37 @@ public class GenConfig {
             return this;
         }
 
+        /**
+         * 在tau-ceti中搜索实现类
+         */
         public Builder lookup() throws IllegalAccessException, InstantiationException, ClassNotFoundException {
             return this.lookup("com.chuang.tauceti.generator.impl", Generator.class);
         }
 
+        /**
+         * 搜索指定目录下的Generator实现，可调用多次，每次搜索结果都会被保存
+         */
         public Builder lookup(String rootPackage, Class<? extends Generator> parent) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
             Collection<Class<?>> classes = ClassSearch.findClass(rootPackage, true, ClassSearch.and(parent));
             for (Class<?> aClass : classes) {
-                Generator generator = (Generator) aClass.newInstance();
-                addImpl(generator);
+                if (ClassKit.isNormalClass(aClass)) {
+                    Generator generator = (Generator) aClass.newInstance();
+                    addImpl(generator);
+                }
+
             }
             return this;
         }
 
-        private void addImpl(Generator generator) {
+        /**
+         * 手动添加单个实现
+         */
+        public Builder addImpl(Generator generator) {
             Set<Generator> set =
                     generators.stream().filter(gen-> gen.type().equals(generator.type())).collect(Collectors.toSet());
             generators.removeAll(set);
             generators.add(generator);
+            return this;
         }
 
         public GenConfig build() {

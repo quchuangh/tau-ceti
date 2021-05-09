@@ -7,6 +7,9 @@ import com.chuang.tauceti.generator.config.GenConfig;
 import java.util.Collections;
 import java.util.Map;
 
+/**
+ * 上下文生命周期
+ */
 public interface ContextInitializer {
 
 

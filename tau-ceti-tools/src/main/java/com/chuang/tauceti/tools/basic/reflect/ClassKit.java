@@ -3,13 +3,12 @@ package com.chuang.tauceti.tools.basic.reflect;
 import com.chuang.tauceti.tools.basic.BasicType;
 import com.chuang.tauceti.tools.basic.StringKit;
 import com.chuang.tauceti.tools.basic.collection.CollectionKit;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +23,7 @@ import java.util.Optional;
  *
  */
 public class ClassKit {
-	
+	private static final Log logger = LogFactory.getLog(ClassKit.class);
 	private ClassKit() {
 		// 静态类不可实例化
 	}
@@ -356,4 +355,46 @@ public class ClassKit {
 
 		return and;
 	}
+
+	public static Class<?> getSuperClassGenericType(final Class<?> clazz, final Class<?> superClazz, final int index) {
+		Type type = null;
+		if(classEq(superClazz, clazz.getGenericSuperclass())) {
+			type = clazz.getGenericSuperclass();
+		} else {
+			Type[] interfaces = clazz.getGenericInterfaces();
+			for (Type t: interfaces) {
+				if(classEq(superClazz, t)) {
+					type = t;
+					break;
+				}
+			}
+		}
+
+		if (null == type) {
+			logger.warn(String.format("Warn: %s 无法找到一个叫 %s 的父类或接口", clazz.getSimpleName(), superClazz.getSimpleName()));
+			return Object.class;
+		} else if (!(type instanceof ParameterizedType)) {
+			logger.warn(String.format("Warn: %s's superclass not ParameterizedType", clazz.getSimpleName()));
+			return Object.class;
+		} else {
+			Type[] params = ((ParameterizedType) type).getActualTypeArguments();
+			if (index >= params.length || index < 0) {
+				logger.warn(String.format("Warn: Index: %s, Size of %s's Parameterized Type: %s .", index,
+						clazz.getSimpleName(), params.length));
+				return Object.class;
+			}
+			if (!(params[index] instanceof Class)) {
+				logger.warn(String.format("Warn: %s not set the actual class on superclass generic parameter",
+						clazz.getSimpleName()));
+				return Object.class;
+			}
+			return (Class<?>) params[index];
+		}
+	}
+
+	private static boolean classEq(Class<?> clazz, Type type) {
+		return clazz == type ||
+				(type instanceof ParameterizedType && ((ParameterizedType) type).getRawType() == clazz);
+	}
+
 }
